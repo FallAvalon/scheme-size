@@ -1,0 +1,9 @@
+PASS plus/plus final repeat / UI100 / headless identical: be563cb2eadcaa35402ea1da105c4e67404bf73fd12188fec55ffd0844ecd54d
+PASS god/god final repeat / UI100 / headless identical: 537acc41d944d40328559fb9f080d9ba4046dcb3fa2e8f506711bf1dd1ed9fdf
+PASS both/plus final repeat / UI100 / headless identical: be563cb2eadcaa35402ea1da105c4e67404bf73fd12188fec55ffd0844ecd54d
+PASS both/god final repeat / UI100 / headless identical: 537acc41d944d40328559fb9f080d9ba4046dcb3fa2e8f506711bf1dd1ed9fdf
+PASS real remote plus strict=false used final JAR; vanilla server with zero installed mods, non-admin client.
+PASS real remote plus strict=true used final JAR; vanilla server with zero installed mods, non-admin client.
+PASS real remote god strict=false used final JAR; vanilla server with zero installed mods, non-admin client.
+PASS real remote god strict=true used final JAR; vanilla server with zero installed mods, non-admin client.
+PASS God UI200 used final JAR, identical SHA-256.

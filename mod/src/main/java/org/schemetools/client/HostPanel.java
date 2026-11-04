@@ -165,9 +165,9 @@ public final class HostPanel extends ToolDialog {
     public void openSelfTools() { new PlayerToolsDialog(actions, Vars.player).show(); }
     public void teleportToCursor() {
         try {
-            actions.teleport(Vars.player, Core.input.mouseWorldX(), Core.input.mouseWorldY());
+            boolean remote=CursorTeleport.move(actions);
             autopilot.stop();
-            Vars.ui.showInfoFade(text("st.teleport.done"));
+            Vars.ui.showInfoFade(text(remote?"st.teleport.requested":"st.teleport.done"));
         } catch (IllegalArgumentException | IllegalStateException failure) {
             Vars.ui.showInfoFade(text(failure.getMessage() == null ? "st.error.input" : failure.getMessage()));
         }
@@ -369,7 +369,7 @@ public final class HostPanel extends ToolDialog {
         Runnable[] runs={()->new WaveForecastDialog().show(),()->new CoreInfoDialog().show(),this::openBuildTools,this::openRoutes,this::openSchematics,this::openQuickSchematics,this::openConsole,this::openVisuals,()->new PowerInfoDialog().show(),this::openAutopilot};
         String[] modules={"info","info","build","routes","schematics","schematics","console","visual","info","ai"};
         for(int i=0;i<labels.length;i++)if(Core.settings.getBool("schemesize-module-"+modules[i],true))ToolUi.action(root,text(labels[i]),"st.help.overview",runs[i]).setDisabled(i==6?!actions.isAvailable():i!=4&&i!=7&&!actions.hasGame());
-        ToolUi.action(root,text("st.toggle-waves"),"st.rules-help",()->confirm(text("st.confirm-rules"),()->perform(()->{actions.waves(!Vars.state.rules.waves);return text("st.rules-applied");})));
+        ToolUi.action(root,text("st.toggle-waves"),"st.rules-help",()->quickConfirm(text("st.confirm-rules"),()->perform(()->{actions.waves(!Vars.state.rules.waves);return text("st.rules-applied");})));
         ToolUi.action(root,text("st.players-refresh"),"st.help.overview",()->{refreshPlayerWidgets();Vars.ui.showInfoFade(text("st.players-refreshed"));});
         ToolUi.field(root,text("st.announce"),announcement,value->announcement=limit(value,200));
         ToolUi.action(root,text("st.announce"),"st.help.overview",()->perform(()->{actions.announce(announcement);return Core.bundle.format("st.announce-sent",announcement.strip());}));
@@ -399,7 +399,7 @@ public final class HostPanel extends ToolDialog {
         root.add(text("st.quick-actions")).left().padTop(10f).row();
         root.table(row -> {
             row.defaults().size(UiSizing.width(300f), 44f).pad(3f);
-            row.button(text("st.toggle-waves"), () -> confirm(text("st.confirm-rules"), () -> perform(() -> {
+            row.button(text("st.toggle-waves"), () -> quickConfirm(text("st.confirm-rules"), () -> perform(() -> {
                 actions.waves(!Vars.state.rules.waves);
                 return text("st.rules-applied");
             })))
@@ -497,10 +497,10 @@ public final class HostPanel extends ToolDialog {
         }).row();
         ToolUi.action(playerDetailsTable,text("st.player-tools"),"st.help.player-actions",()->{Player current=selectedPlayer();if(current!=null)new PlayerToolsDialog(actions,current).show();});
         ToolUi.action(playerDetailsTable,text("st.team")+": "+selected.team().localized(),"st.help.player-team",()->{
-            BaseDialog picker=new BaseDialog(text("st.team"));picker.addCloseButton();
+            BaseDialog picker=new BaseDialog(text("st.team"));picker.name="st-modal";picker.addCloseButton();
             for(Team destination:Team.baseTeams)if(HostActions.isValidTeam(destination))picker.cont.button(destination.localized(),()->{
                 String uuid=selectedPlayerUuid;String name=displayName(selectedPlayer());picker.hide();
-                confirm(Core.bundle.format("st.confirm-team-detail",name,destination.localized()),()->perform(()->{actions.team(findPlayer(uuid),destination);refreshPlayerWidgets();return Core.bundle.format("st.team-changed",name,destination.localized());}));
+                quickConfirm(Core.bundle.format("st.confirm-team-detail",name,destination.localized()),()->perform(()->{actions.team(findPlayer(uuid),destination);refreshPlayerWidgets();return Core.bundle.format("st.team-changed",name,destination.localized());}));
             }).width(240).height(44).row();picker.show();
         }).setDisabled(!actions.isAvailable());
 
@@ -548,7 +548,7 @@ public final class HostPanel extends ToolDialog {
         Team team=selectedTeam();CoreBuildSelection selection=selectedCore();Item item=selectedItem();
         if(selection!=null){
             ToolUi.action(root,text("st.core")+" · "+selection.number+"/"+selection.total,"st.help.core-pick",()->{
-                BaseDialog picker=new BaseDialog(text("st.core"));picker.addCloseButton();
+                BaseDialog picker=new BaseDialog(text("st.core"));picker.name="st-modal";picker.addCloseButton();
                 int i=0;for(var core:team.cores()){int index=i++;picker.cont.button(core.block.localizedName+" · "+core.tileX()+", "+core.tileY(),()->{coreIndex=index;picker.hide();rebuild();}).width(ToolUi.width()).height(44).row();}picker.show();
             });
         }
@@ -562,7 +562,7 @@ public final class HostPanel extends ToolDialog {
         root.label(()->selection==null||item==null?text("st.items-current-none"):Core.bundle.format("st.items-current",selection.core.items.get(item))).wrap().row();
         ToolUi.action(root,text("st.apply"),"st.help.item-apply",()->attempt(()->{
             int delta=parseInt(itemDelta,actions.godMode()?Integer.MIN_VALUE:-HostActions.MAX_ITEM_DELTA,actions.godMode()?Integer.MAX_VALUE:HostActions.MAX_ITEM_DELTA,"st.error.input");
-            confirm(Core.bundle.format("st.confirm-items-detail",team.localized(),item.localizedName,delta),()->perform(()->{
+            quickConfirm(Core.bundle.format("st.confirm-items-detail",team.localized(),item.localizedName,delta),()->perform(()->{
                 ItemAdjustment result=actions.adjustItem(team,selection==null?null:selection.core,item,delta);return Core.bundle.format("st.items-applied",result.before(),result.after());
             }));
         })).setDisabled(!actions.isAvailable()||selection==null||item==null);
@@ -588,7 +588,7 @@ public final class HostPanel extends ToolDialog {
         ToolUi.heading(root,text("st.ui.step-place"),"st.help.unit-spawn");
         var place=ToolUi.action(root,text("st.workspace.point"),"st.help.unit-spawn",()->attempt(()->{
             Team team=selectedTeam();UnitType selected=selectedUnit();int count=parseInt(spawnCount,1,actions.maxSpawnBatch(),"st.error.input");
-            new AreaSelectionDialog(1,point->confirm(Core.bundle.format("st.workspace.spawn-confirm",selected.localizedName,count,point.x1(),point.y1()),()->perform(()->{
+            new AreaSelectionDialog(1,point->quickConfirm(Core.bundle.format("st.workspace.spawn-confirm",selected.localizedName,count,point.x1(),point.y1()),()->perform(()->{
                 SpawnResult result=actions.spawn(team,selected,point.x1()*Vars.tilesize,point.y1()*Vars.tilesize,count);return Core.bundle.format("st.spawn-result",result.spawned());
             })),selected,team,count).show();
         }));place.setDisabled(!actions.isAvailable()||type==null);ToolUi.emphasize(place,false);
@@ -596,12 +596,12 @@ public final class HostPanel extends ToolDialog {
         if(!advanced)return;
         Player player=selectedPlayer();
         ToolUi.action(root,text("st.players")+": "+(player==null?"—":Strings.stripColors(player.name)),"st.help.unit-near",()->{
-            BaseDialog picker=new BaseDialog(text("st.players"));picker.addCloseButton();
+            BaseDialog picker=new BaseDialog(text("st.players"));picker.name="st-modal";picker.addCloseButton();
             for(Player target:Groups.player.copy())picker.cont.button(Strings.stripColors(target.name)+" #"+target.id,()->{selectedPlayerUuid=PlayerKey.of(target);picker.hide();rebuild();}).width(ToolUi.width()).height(44).row();picker.show();
         });
         ToolUi.action(root,text("st.spawn"),"st.help.unit-near",()->attempt(()->{
             String uuid=selectedPlayerUuid;Team team=selectedTeam();UnitType selected=selectedUnit();int count=parseInt(spawnCount,1,actions.maxSpawnBatch(),"st.error.input");
-            confirm(Core.bundle.format("st.confirm-spawn-detail",selected.localizedName,count,player.name,team.localized()),()->perform(()->{
+            quickConfirm(Core.bundle.format("st.confirm-spawn-detail",selected.localizedName,count,player.name,team.localized()),()->perform(()->{
                 Player current=findPlayer(uuid);if(current==null)throw new IllegalArgumentException("st.error.input");return Core.bundle.format("st.spawn-result",actions.spawn(team,selected,current.x,current.y,count).spawned());
             }));
         })).setDisabled(!actions.isAvailable()||player==null||type==null);
@@ -631,7 +631,7 @@ public final class HostPanel extends ToolDialog {
         root.add(text("st.rules-help")).wrap().width(UiSizing.width(650f)).left().row();
         root.button(text("st.rules-live-title"), () -> new RulesDialog(actions, edition).show()).width(UiSizing.width(300)).disabled(!actions.isAvailable()).row();
         root.add(text("st.waves") + ": " + (Vars.state.rules.waves ? text("st.on") : text("st.off"))).left().row();
-        root.button(text("st.toggle-waves"), () -> confirm(text("st.confirm-rules"), () -> perform(() -> {
+        root.button(text("st.toggle-waves"), () -> quickConfirm(text("st.confirm-rules"), () -> perform(() -> {
             actions.waves(!Vars.state.rules.waves);
             return text("st.rules-applied");
         }))).width(UiSizing.width(300f)).height(44f).disabled(!actions.isAvailable()).row();
@@ -942,6 +942,11 @@ public final class HostPanel extends ToolDialog {
         return Double.toString(value);
     }
 
+    private void quickConfirm(String prompt,Runnable operation){
+        if (!actions.isAvailable()) { showError(actions.hasGame() ? "st.error.authority" : "st.error.no-game"); return; }
+        Runnable guarded=WorldGuard.capture(operation);
+        ToolUi.confirmAction(text("st.title"),prompt,()->attempt(guarded));
+    }
     private void confirm(String prompt, Runnable operation) {
         if (!actions.isAvailable()) { showError(actions.hasGame() ? "st.error.authority" : "st.error.no-game"); return; }
         Runnable guarded=WorldGuard.capture(operation);

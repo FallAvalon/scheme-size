@@ -158,7 +158,8 @@ public final class UnitToolsDialog extends ToolDialog {
         if(targets.isEmpty()){Vars.ui.showInfoFade(text("st.units-empty"));return;}
         var request=new org.schemetools.host.UnitScope.Request(Vars.world.tiles,filter,targets);
         Runnable task=WorldGuard.capture(()->{int count=actions.killUnits(request);clearSelection();repaint.run();Vars.ui.showInfoFade(Core.bundle.format("st.units-killed",count));});
-        BaseDialog dialog=new BaseDialog(text("st.units"));dialog.closeOnBack();
+        if(!Core.settings.getBool("schemesize-confirm-actions",false)){run(task);return;}
+        BaseDialog dialog=new BaseDialog(text("st.units"));dialog.name="st-modal";dialog.closeOnBack();
         float width=Math.min(440,Core.scene.getWidth()/UiSizing.scale()-90);
         dialog.cont.pane(body->body.add(scopeDescription(filter)+"\n\n"+Core.bundle.format("st.units-kill-confirm",targets.size())).wrap().width(width)).width(width+32*UiSizing.scale()).maxHeight(UiSizing.height()*.6f).scrollX(false);
         dialog.buttons.button(text("cancel"),dialog::hide).width(120).height(44);
@@ -190,7 +191,7 @@ public final class UnitToolsDialog extends ToolDialog {
             ToolUi.action(details,text("st.player-spectate"),"st.unit-tools-help",()->run(()->{Vars.control.input.spectate(target());hide();}));
             ToolUi.action(details,text("st.player-remove-unit"),"st.player-remove-unit-warning",()->run(()->{
                 Unit current=target();Runnable task=WorldGuard.capture(()->{actions.despawn(current);clearSelection();repaint.run();});
-                Vars.ui.showConfirm(text("st.unit-tools"),text("st.player-remove-unit-warning"),()->run(task));
+                ToolUi.confirmAction(text("st.unit-tools"),text("st.player-remove-unit-warning"),()->run(task));
             })).setDisabled(!actions.isAvailable()||HostActions.protectedUnit(unit));
         }catch(RuntimeException failure){details.add(text("st.unit-tools-missing")).wrap();}
     }

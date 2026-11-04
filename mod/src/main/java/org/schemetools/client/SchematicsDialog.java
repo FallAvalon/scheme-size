@@ -71,7 +71,7 @@ public final class SchematicsDialog extends ToolDialog {
         }
         if(captureTab||advanced)
         ToolUi.action(root,text("st.short.layer")+": "+text("st.schematic.layer."+layer.name().toLowerCase(Locale.ROOT)),"st.help.layer",()->{
-            BaseDialog picker=new BaseDialog(text("st.short.layer"));picker.addCloseButton();
+            BaseDialog picker=new BaseDialog(text("st.short.layer"));picker.name="st-modal";picker.addCloseButton();
             for(var value:SchematicTools.Layer.values())picker.cont.button(text("st.schematic.layer."+value.name().toLowerCase(Locale.ROOT)),()->{layer=value;picker.hide();rebuild();}).width(240).height(44).row();picker.show();
         });
         ToolUi.action(root,text("st.short.import"),"st.help.import",()->{imports=!imports;rebuild();});

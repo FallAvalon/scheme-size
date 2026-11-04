@@ -18,7 +18,7 @@ public final class RoutesDialog extends ToolDialog {
         }).row();
         int index=0;for(int i=0;i<types.length;i++)if(types[i]==overlay.costType())index=i;
         ToolUi.action(root,Core.bundle.get(labels[index]),"st.help.route-type",()->{
-            BaseDialog picker=new BaseDialog(Core.bundle.get("st.routes.title"));picker.addCloseButton();
+            BaseDialog picker=new BaseDialog(Core.bundle.get("st.routes.title"));picker.name="st-modal";picker.addCloseButton();
             for(int i=0;i<types.length;i++){int type=types[i];picker.cont.button(Core.bundle.get(labels[i]),()->{overlay.costType(type);picker.hide();rebuild();}).width(240).height(44).row();}picker.show();
         });
         ToolUi.action(root,Core.bundle.get("st.routes.refresh"),"st.help.route-refresh",()->{overlay.enabled(true);overlay.refresh();rebuild();});

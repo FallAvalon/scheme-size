@@ -35,10 +35,15 @@ public final class ArenaDialog extends ToolDialog {
     }
     private void apply(){run(()->{
         calculate();ArenaTools.Edit pending=preview;
-        Vars.ui.showConfirm(text("st.arena.title"),Core.bundle.format("st.arena.confirm",pending.count()),()->run(()->{int count=tools.apply(pending);preview=null;rebuild();Vars.ui.showInfoFade(Core.bundle.format("st.arena.applied",count));}));
+        ToolUi.confirmAction(text("st.arena.title"),Core.bundle.format("st.arena.confirm",pending.count()),()->run(()->{int count=tools.apply(pending);preview=null;rebuild();Vars.ui.showInfoFade(Core.bundle.format("st.arena.applied",count));}));
     });}
     private void rebuild(){
         var root=ToolUi.content(this);
+        if(tools.godMode())root.table(t->{
+            ArenaTools.Layer[] layers={ArenaTools.Layer.FLOOR,ArenaTools.Layer.OVERLAY,ArenaTools.Layer.BLOCK};
+            String[] labels={"st.arena.quick.floor","st.arena.quick.ore","st.arena.quick.walls"};
+            for(int i=0;i<layers.length;i++){var value=layers[i];var button=t.button(text(labels[i]),ToolUi.toggleStyle(),()->{layer=value;preview=null;rebuild();}).width((ToolUi.width()-8)/3).height(40).padRight(2).get();button.getLabel().setFontScale(.85f);button.getLabel().setEllipsis(true);button.setChecked(layer==value);button.name="st-terrain-"+value.name();}
+        }).row();
         ToolUi.action(root,text("st.selection.title"),"st.selection.title.help",()->new AreaSelectionDialog(512,area->{preview=null;coords[0]=""+area.x1();coords[1]=""+area.y1();coords[2]=""+area.x2();coords[3]=""+area.y2();rebuild();}).show());
         if(layer==ArenaTools.Layer.FLOOR||layer==ArenaTools.Layer.TERRAIN)ToolUi.action(root,text("st.arena.layer.floor")+": "+floor.localizedName,"st.arena.help",()->pick(0));
         if(layer==ArenaTools.Layer.OVERLAY||layer==ArenaTools.Layer.TERRAIN)ToolUi.action(root,text("st.arena.layer.overlay")+": "+overlay.localizedName,"st.arena.help",()->pick(1));

@@ -1,0 +1,2 @@
+[11-04-2026 20:37:35] [I] SCHEMETOOLS_REMOTE_SERVER_PASS strict=false mods=0 playerAdmin=false x=1433.5999 y=1433.4749
+[I] SCHEMETOOLS_REMOTE_CLIENT_PASS strict=false admin=false accepted=true

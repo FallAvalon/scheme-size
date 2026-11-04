@@ -1,11 +1,21 @@
-# Текущие артефакты 0.4.1
+# Текущие артефакты 0.4.2
+
+Зум, быстрые действия, природные стены God и клиентский телепорт: [проверки](20_fast_map_controls.md).
+
+| Редакция | JAR | SHA-256 |
+|---|---|---|
+| S+ | [scheme-size-plus.jar](../mod/build/libs/scheme-size-plus.jar) | be563cb2eadcaa35402ea1da105c4e67404bf73fd12188fec55ffd0844ecd54d |
+| SG | [scheme-size-god.jar](../mod/build/libs/scheme-size-god.jar) | 537acc41d944d40328559fb9f080d9ba4046dcb3fa2e8f506711bf1dd1ed9fdf |
+
+---
+# Исторические артефакты 0.4.1
 
 Alt + Mouse Back, обе редакции; [проверки](19_cursor_teleport.md).
 
 | Редакция | JAR | SHA-256 |
 |---|---|---|
-| S+ | [scheme-size-plus.jar](../mod/build/libs/scheme-size-plus.jar) | e79f19544e1f90c66c2623d689c019edc71bbe8adad692e05f75fdee0f1d874b |
-| SG | [scheme-size-god.jar](../mod/build/libs/scheme-size-god.jar) | 9d9547e23c811dd7633dad2c4cdeee2f17c0fe488354fe36dedd3039843802d9 |
+| S+ | [scheme-size-plus.jar](https://github.com/FallAvalon/scheme-size-plus/releases/download/v0.4.1/scheme-size-plus.jar) | e79f19544e1f90c66c2623d689c019edc71bbe8adad692e05f75fdee0f1d874b |
+| SG | [scheme-size-god.jar](https://github.com/FallAvalon/scheme-size-god/releases/download/v0.4.1/scheme-size-god.jar) | 9d9547e23c811dd7633dad2c4cdeee2f17c0fe488354fe36dedd3039843802d9 |
 
 ---
 # Исторические артефакты 0.4.0 — Size Plus / Size God

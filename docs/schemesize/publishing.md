@@ -1,15 +1,15 @@
 # Публикация Plus/God в браузере модов
 
-Публикация выполнена для версии **0.4.1**, desktop Mindustry **160.7**. Это тестовая версия: полный O279, Linux и WAN не объявлены проверенными. Текущая публикация: [отчёт № 19](../../reports/19_cursor_teleport.md).
+Публикация выполнена для версии **0.4.2**, desktop Mindustry **160.7**. Это тестовая версия: полный O279, Linux и WAN не объявлены проверенными. Текущая публикация: [отчёт № 20](../../reports/20_fast_map_controls.md).
 
 ## Что загружать
 
 Одна общая кодовая база хранится в исходном репозитории, например scheme-size. Для каталога создаются две витрины: scheme-size-plus и scheme-size-god. Витрины содержат метаданные и релизы; Java-реализация там не дублируется.
 
-[Подготовленные папки](../../mod/build/publication/v0.4.1/) включают для каждой редакции:
+[Подготовленные папки](../../mod/build/publication/v0.4.2/) включают для каждой редакции:
 
 - mod.hjson, icon.png, README.md, USER_GUIDE_RU.md, RELEASE_NOTES.md — файлы витрины;
-- source-manifest.sha256 и source.json — связь с исходной кодовой базой;
+- source-manifest.sha256 и source.json — связь с исходной кодовой базой; VerifyRelease.java — автономная проверка JAR и обнаружение Java-репозитория игрой;
 - release/ — только нужный JAR и SHA256SUMS.txt, это вложения релиза, а не файлы для коммита.
 
 Gitignore исключает release/ из витрин, а корневой gitignore исключает локальные work/, профили игры и кеши/сборки. Не загружайте desktop.jar, сохранения, логи или каталоги тестовых профилей.
@@ -22,7 +22,7 @@ Gitignore исключает release/ из витрин, а корневой git
 java '-Dfile.encoding=UTF-8' tools/PreparePublication.java
 ~~~
 
-Команда одинакова в PowerShell и Linux shell. Она проверяет соответствие метаданных/иконки собранным JAR и создаёт build/publication/v0.4.1. Существующий каталог не перезаписывается. Для другой выходной папки и точной ссылки на исходники:
+Команда одинакова в PowerShell и Linux shell. Она проверяет соответствие метаданных/иконки собранным JAR и создаёт build/publication/v0.4.2. Существующий каталог не перезаписывается. Для другой выходной папки и точной ссылки на исходники:
 
 ~~~sh
 java '-Dfile.encoding=UTF-8' tools/PreparePublication.java build/publication/upload-ready FallAvalon/scheme-size FULL_40_CHARACTER_COMMIT_SHA
@@ -34,7 +34,7 @@ java '-Dfile.encoding=UTF-8' tools/PreparePublication.java build/publication/upl
 
 1. Создайте исходный репозиторий scheme-size. Загрузите исходники проекта с учётом gitignore. Не назначайте тему mindustry-mod этому репозиторию: каталог должен видеть две витрины. Лицензия за владельца автоматически не выбирается.
 2. Создайте два публичных обычных репозитория scheme-size-plus и scheme-size-god, не template и не archived. В корень каждого загрузите содержимое соответствующей подготовленной папки, кроме release/. Сохраните исходную .gitignore. В README/source.json должна быть ссылка на общие исходники.
-3. Для каждого создайте обычный опубликованный GitHub Release с тегом v0.4.1, привязанным к коммиту витрины с версией 0.4.1. Название: Size Plus (S+) 0.4.1 [v160.7] либо Size God (SG) 0.4.1 [v160.7]. Текст возьмите из RELEASE_NOTES.md, добавив ссылку на реальные проверки и ограничения. Не выдавайте тестовую версию за полный паритет.
+3. Для каждого создайте обычный опубликованный GitHub Release с тегом v0.4.2, привязанным к коммиту витрины с версией 0.4.2. Название: Size Plus (S+) 0.4.2 [v160.7] либо Size God (SG) 0.4.2 [v160.7]. Текст возьмите из RELEASE_NOTES.md, добавив ссылку на реальные проверки и ограничения. Не выдавайте тестовую версию за полный паритет.
 4. Во вложения загрузите только JAR своей редакции из release/ и SHA256SUMS.txt. Скачайте их обратно и сверьте SHA-256. Не используйте draft/prerelease для первой каталожной проверки: установщик latest может не увидеть такой выпуск.
 5. На странице каждой витрины откройте настройки About/Topics и добавьте mindustry-mod. Метаданные root mod.hjson уже имеют java: true, minGameVersion: 160.7 и hidden: true. Не добавляйте hideBrowser: true.
 6. Подождите очередного автоматического обновления каталога (несколько часов, срок не гарантирован). В чистом профиле 160.7: Модификации → Браузер модификаций → найти точное название → установить → перезапустить. Проверьте, что Plus скачался как Plus, God — как God, и появилась правильная иконка.
@@ -42,10 +42,10 @@ java '-Dfile.encoding=UTF-8' tools/PreparePublication.java build/publication/upl
 
 Каталог требует корневые метаданные, тему mindustry-mod и JAR-релиз для Java; PR для добавления не нужен. [Официальные требования MindustryMods](https://github.com/Anuken/MindustryMods).
 
-Два JAR в одном релизе не подходят: 160.7 выбирает один подходящий JAR, а не предлагает выбор редакции. До индексации используйте скачанный JAR и импорт с диска: прямой GitHub-импорт витрины без Java-исходников может быть ошибочно распознан как обычный ZIP-мод. [Установщик точного build](https://github.com/Anuken/Mindustry/blob/v160.7/core/src/mindustry/ui/dialogs/ModsDialog.java#L594).
+Два JAR в одном релизе не подходят: 160.7 выбирает один подходящий JAR, а не предлагает выбор редакции. В витрины 0.4.2 добавлен рабочий Java-инструмент VerifyRelease.java. GitHub определяет язык Java, поэтому импорт 160.7 может скачать JAR из Releases даже без каталога: Модификации → Импорт → Из GitHub → FallAvalon/scheme-size-god (либо scheme-size-plus). Подтверждение API language и настоящий игровой импорт указаны в отчёте № 20. Альтернатива — скачать JAR и импортировать с диска. [Установщик точного build](https://github.com/Anuken/Mindustry/blob/v160.7/core/src/mindustry/ui/dialogs/ModsDialog.java#L594).
 
 Сейчас индексатор обрабатывает каталожные иконки только при минимум двух звёздах у репозитория; установленный мод загружает свою иконку независимо от этого. Для витрин без исходников явное java: true обеспечивает Java-классификацию каталогом. [Код индексатора](https://github.com/Anuken/MindustryMods/blob/master/src/modupdater/ModUpdater.java).
 
 ## Публичный результат и что осталось внешним
 
-GitHub: FallAvalon. [Исходники](https://github.com/FallAvalon/scheme-size), [релиз Plus](https://github.com/FallAvalon/scheme-size-plus/releases/tag/v0.4.1), [релиз God](https://github.com/FallAvalon/scheme-size-god/releases/tag/v0.4.1). Скачанные обратно JAR совпали с испытанными по SHA-256, обе витрины имеют mindustry-mod. Подтверждения — в отчёте № 17. При проверке 04.11.2026 обе витрины ещё отсутствовали в mods.json; скачивание из игрового каталога и обновление оттуда пока не проверены. До индексации используйте JAR из Releases. Локальные упаковка, хеши, загрузка иконок и игровые проверки перечислены в [отчёте № 16](../../reports/16_roster_icon_publication.md).
+GitHub: FallAvalon. [Исходники](https://github.com/FallAvalon/scheme-size), [релиз Plus](https://github.com/FallAvalon/scheme-size-plus/releases/tag/v0.4.2), [релиз God](https://github.com/FallAvalon/scheme-size-god/releases/tag/v0.4.2). Скачанные обратно JAR совпали с испытанными по SHA-256, обе витрины имеют mindustry-mod. Подтверждения — в отчёте № 17. При проверке 04.11.2026 обе витрины ещё отсутствовали в mods.json; скачивание из игрового каталога и обновление оттуда пока не проверены. До индексации используйте JAR из Releases. Локальные упаковка, хеши, загрузка иконок и игровые проверки перечислены в [отчёте № 16](../../reports/16_roster_icon_publication.md).

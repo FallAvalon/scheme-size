@@ -55,6 +55,9 @@ public final class ToolWorkspace {
         tool(Icon.settings, "st.settings.title", null, () -> new ToolSettingsDialog(keys, routes, panel).show());
         context.name = "scheme-size-context";
         context.top();
+        Core.input.getInputMultiplexer().addProcessor(0,new arc.input.InputProcessor(){
+            @Override public boolean scrolled(float x,float y){return routeScroll(x,y);}
+        });
         Core.scene.root.addCaptureListener(new InputListener() {
             @Override public boolean touchDown(InputEvent event,float x,float y,int pointer,KeyCode button){
                 if(current != null && !Core.scene.hasDialog() && event.targetActor != null
@@ -85,6 +88,21 @@ public final class ToolWorkspace {
         arc.Events.on(mindustry.game.EventType.ResetEvent.class, event -> {suspended=false;close();});
         arc.Events.on(mindustry.game.EventType.WorldLoadEvent.class, event -> {suspended=false;close();});
         layout();
+    }
+    /** Route wheel by the pointer, not the pane that last retained scroll focus. */
+    public boolean routeScroll(float amountX,float amountY){
+        if(!Vars.state.isGame())return false;
+        var p=Core.scene.screenToStageCoordinates(new arc.math.geom.Vec2(Core.input.mouseX(),Core.graphics.getHeight()-Core.input.mouseY()));
+        Element hit=Core.scene.hit(p.x,p.y,true);var dialog=Core.scene.getDialog();
+        if(dialog!=null){
+            boolean selection=dialog instanceof AreaSelectionDialog && hit!=null && "st-map-selection-canvas".equals(hit.name);
+            boolean background="st-modal".equals(dialog.name) && (hit==dialog||hit==null);
+            if(selection||background){Vars.renderer.scaleCamera(-amountY);return true;}
+            return false;
+        }
+        Element focus=Core.scene.getScrollFocus();
+        if(focus!=null&&focus.isDescendantOf(root)&&(hit==null||!hit.isDescendantOf(root)))Core.scene.setScrollFocus(null);
+        return false;
     }
     private void tool(Drawable icon, String key, String module, Runnable run) {
         modules.add(module);

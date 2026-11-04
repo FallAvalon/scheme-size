@@ -31,6 +31,7 @@ public final class ToolSettingsDialog extends ToolDialog {
         root.table(t->{int i=0;for(String id:new String[]{"interface","modules","keys","other"}){var button=t.button(text("st.settings.tab."+id),()->{section=id;rebuild();}).width((ToolUi.width()-8)/2).minHeight(40).get();button.getLabel().setWrap(true);if(++i%2==0)t.row();}}).row();
         switch(section){
             case "interface"->{
+                preference(root,"st.settings.confirm-actions","schemesize-confirm-actions",false);
                 preference(root,"setting.schemetools-hud.name","schemetools-hud",true);
                 preference(root,"st.settings.welcome","schemesize-welcome",true);
                 preference(root,"st.settings.wave-notice","schemesize-wave-notice",true);
@@ -81,7 +82,7 @@ public final class ToolSettingsDialog extends ToolDialog {
         catch (NumberFormatException ignored) { }
     }
     private void capture(ModKeys.Entry entry) {
-        BaseDialog dialog = new BaseDialog(text(entry.action().label));
+        BaseDialog dialog = new BaseDialog(text(entry.action().label));dialog.name="st-modal";
         dialog.cont.add(text("st.keys.capture")).wrap().width(UiSizing.width(480f)).row();
         dialog.buttons.button(text("st.keys.clear"), () -> { ModKeys.clear(entry); dialog.hide(); rebuild(); });
         dialog.addCloseButton();

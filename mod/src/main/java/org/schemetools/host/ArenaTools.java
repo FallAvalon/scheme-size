@@ -54,6 +54,7 @@ public final class ArenaTools {
     private long lastEdit;
     private final java.util.Map<Edit,WorldSnapshot> snapshots=new java.util.IdentityHashMap<>();
     public ArenaTools(HostActions authority) { this.authority = java.util.Objects.requireNonNull(authority); }
+    public boolean godMode(){return authority.godMode();}
 
     public Edit preview(Area area, Layer layer, Block floor, Block overlay, Block block) {
         requireHost();

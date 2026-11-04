@@ -28,6 +28,7 @@ public final class BuildToolsDialog extends ToolDialog {
     private String x = "0", y = "0", width = "5", height = "5", powerRadius = "5";
     private ArenaTools.Shape shape = ArenaTools.Shape.RECTANGLE;
     private boolean outline, advanced;
+    private ArenaDialog terrainDialog;
 
     public BuildToolsDialog(BuildTools tools) {
         this(tools,new org.schemetools.host.HostActions());
@@ -46,12 +47,13 @@ public final class BuildToolsDialog extends ToolDialog {
     private void action(arc.scene.ui.layout.Table root,String key,Runnable run){ToolUi.action(root,text(key),key+".help",run);}
     private void rebuild() {
         var root=ToolUi.content(this);
+        if(actions.godMode())ToolUi.action(root,text("st.arena.edit-map"),"st.arena.help",()->{if(terrainDialog==null)terrainDialog=new ArenaDialog(new ArenaTools(actions));terrainDialog.show();});
         action(root,"st.selection.title",()->new AreaSelectionDialog(512,area->{x=""+area.x1();y=""+area.y1();width=""+(area.x2()-area.x1()+1);height=""+(area.y2()-area.y1()+1);rebuild();}).show());
         ToolUi.action(root,text("st.build.block")+": "+block.localizedName,"st.help.build-block",()->{
             List<Block> blocks=new ArrayList<>();
             for(Block value:Vars.content.blocks())if(value.hasBuilding()&&!value.isFloor()&&(actions.godMode()||(value.isVisible()&&!value.privileged&&!value.isBanned()&&value.unlockedNow()&&value.supportsEnv(Vars.state.rules.env))))blocks.add(value);
             ContentPicker.icons(text("st.build.block"),blocks,block,selected->{block=selected;config=null;rebuild();});
-        });
+        }).name="st-build-pick-block";
         action(root,"st.build.fill",()->{
             if(actions.godMode()&&instantMode)prepareInstant();
             else prepare(()->{int sx=integer(x),sy=integer(y),w=integer(width),h=integer(height);
@@ -71,11 +73,11 @@ public final class BuildToolsDialog extends ToolDialog {
         ToolUi.action(root,text("st.arena.shape."+shape.name().toLowerCase(java.util.Locale.ROOT)),"st.help.build-shape",()->{shape=shape==ArenaTools.Shape.CIRCLE?ArenaTools.Shape.RECTANGLE:ArenaTools.Shape.CIRCLE;rebuild();});
         root.check(text("st.build.outline"),outline,v->outline=v).row();
         action(root,"st.build.replace",()->prepare(()->tools.cluster(integer(x),integer(y),block,false)));
-        action(root,"st.build.replace-rebuild",()->Vars.ui.showConfirm(text("st.build.title"),text("st.build.replace-rebuild-warning"),()->execute(()->tools.replaceCluster(integer(x),integer(y),block),false)));
+        action(root,"st.build.replace-rebuild",()->ToolUi.confirmAction(text("st.build.title"),text("st.build.replace-rebuild-warning"),()->execute(()->tools.replaceCluster(integer(x),integer(y),block),false)));
         root.label(()->Core.bundle.format("st.build.replacement-pending",tools.pendingReplacements())).wrap().row();
         action(root,"st.build.replacement-cancel",tools::cancelReplacement);
         action(root,"st.build.remove",()->prepare(()->tools.cluster(integer(x),integer(y),null,true)));
-        action(root,"st.build.remove-plans",()->Vars.ui.showConfirm(text("st.build.title"),text("st.build.confirm-remove-plans"),()->execute(()->tools.removePlanCluster(integer(x),integer(y)),false)));
+        action(root,"st.build.remove-plans",()->ToolUi.confirmAction(text("st.build.title"),text("st.build.confirm-remove-plans"),()->execute(()->tools.removePlanCluster(integer(x),integer(y)),false)));
         action(root,"st.build.connect",()->execute(()->tools.connectPower(integer(x),integer(y)),true));
         ToolUi.valueField(root,text("st.build.power-radius"),powerRadius,v->powerRadius=v);
         action(root,"st.build.power-line",this::preparePowerLine);
@@ -91,14 +93,14 @@ public final class BuildToolsDialog extends ToolDialog {
         try{
             if(world!=Vars.world.tiles)throw new IllegalStateException("st.arena.error.world");
             var preview=instant.preview(integer(x),integer(y),integer(width),integer(height),block,Vars.player.team(),rotation,shape,outline).configured(config);
-            Vars.ui.showConfirm(text("st.build.title"),Core.bundle.format("st.build.instant-confirm",preview.count(),preview.replacements()),()->execute(()->instant.apply(preview),false));
+            ToolUi.confirmAction(text("st.build.title"),Core.bundle.format("st.build.instant-confirm",preview.count(),preview.replacements()),()->execute(()->instant.apply(preview),false));
         }catch(RuntimeException failure){error(failure);}
     }
     private void prepare(Supplier<List<BuildPlan>> prepare) {
         try {
             if(world!=Vars.world.tiles)throw new IllegalStateException("st.arena.error.world");
             List<BuildPlan> plans = prepare.get();
-            Vars.ui.showConfirm(text("st.build.title"), Core.bundle.format("st.build.confirm", plans.size()),
+            ToolUi.confirmAction(text("st.build.title"), Core.bundle.format("st.build.confirm", plans.size()),
                 () -> execute(() -> tools.enqueue(plans), false));
         } catch (RuntimeException failure) { error(failure); }
     }
@@ -106,7 +108,7 @@ public final class BuildToolsDialog extends ToolDialog {
         try{
             if(world!=Vars.world.tiles)throw new IllegalStateException("st.arena.error.world");
             BuildTools.PowerLine line=tools.powerLine(integer(x),integer(y),integer(powerRadius),block);
-            Vars.ui.showConfirm(text("st.build.power-line"),Core.bundle.format("st.build.power-line-confirm",line.targetName(),line.targetX(),line.targetY(),line.count()),
+            ToolUi.confirmAction(text("st.build.power-line"),Core.bundle.format("st.build.power-line-confirm",line.targetName(),line.targetX(),line.targetY(),line.count()),
                 ()->execute(()->tools.enqueuePowerLine(line),false));
         }catch(RuntimeException failure){error(failure);}
     }
@@ -115,7 +117,7 @@ public final class BuildToolsDialog extends ToolDialog {
             if(world!=Vars.world.tiles||!Vars.state.isGame()||Vars.player.dead())throw new IllegalStateException("st.arena.error.world");
             var unit=Vars.player.unit();var item=unit.stack.item;int amount=unit.stack.amount;
             if(item==null||amount<=0)throw new IllegalArgumentException("st.build.error.items");
-            Vars.ui.showConfirm(text("st.build.drop"),Core.bundle.format("st.build.drop-confirm",item.localizedName,amount),()->execute(()->{
+            ToolUi.confirmAction(text("st.build.drop"),Core.bundle.format("st.build.drop-confirm",item.localizedName,amount),()->execute(()->{
                 if(Vars.player.dead()||Vars.player.unit()!=unit||unit.stack.item!=item||unit.stack.amount!=amount)
                     throw new IllegalStateException("st.build.priority-drop-changed");
                 tools.drop();return 1;
@@ -126,7 +128,7 @@ public final class BuildToolsDialog extends ToolDialog {
         try{
             if(world!=Vars.world.tiles)throw new IllegalStateException("st.arena.error.world");
             var preview=tools.previewPreferredDrop(integer(x),integer(y));
-            Vars.ui.showConfirm(text("st.build.priority-drop"),Core.bundle.format("st.build.priority-drop-confirm",preview.itemName(),preview.amount(),preview.x(),preview.y()),
+            ToolUi.confirmAction(text("st.build.priority-drop"),Core.bundle.format("st.build.priority-drop-confirm",preview.itemName(),preview.amount(),preview.x(),preview.y()),
                 ()->execute(()->{tools.beginPreferredDrop(preview);return 1;},true));
         }catch(RuntimeException failure){error(failure);}
     }

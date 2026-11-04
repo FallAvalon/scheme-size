@@ -16,6 +16,10 @@ import arc.scene.style.Drawable;
 /** Bounded single-column controls; explanations never compete with the map. */
 final class ToolUi {
     private ToolUi(){}
+    static void confirmAction(String title,String prompt,Runnable action){
+        if(Core.settings.getBool("schemesize-confirm-actions",false))mindustry.Vars.ui.showConfirm(title,prompt,action);
+        else action.run();
+    }
     /** Native backgrounds with a small outline; no generated UI textures. */
     private static final class Frame extends BaseDrawable {
         final Drawable background; final Color color;
@@ -69,6 +73,7 @@ final class ToolUi {
     }
     static void helpText(String title,String text){
         Dialog dialog=new Dialog(title,Styles.defaultDialog);
+        dialog.name="st-modal";
         dialog.closeOnBack();
         float width=Math.min(440,Core.scene.getWidth()/UiSizing.scale()-90);
         dialog.cont.pane(body->body.add(text).wrap().width(width)).width(width+32*UiSizing.scale()).maxHeight(UiSizing.height()*.6f).scrollX(false).pad(12);

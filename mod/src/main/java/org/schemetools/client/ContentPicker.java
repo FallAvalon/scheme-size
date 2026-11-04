@@ -16,7 +16,7 @@ public final class ContentPicker {
 
     /** Same native icon widgets as the game selector, without planet/unlock filtering in God. */
     public static <T extends UnlockableContent> void icons(String title,List<T> content,T current,Consumer<T> selected){
-        BaseDialog dialog=new BaseDialog(title);dialog.addCloseButton();
+        BaseDialog dialog=new BaseDialog(title);dialog.name="st-modal";dialog.addCloseButton();
         float width=Math.min(440,Core.scene.getWidth()/UiSizing.scale()-80);
         boolean units=!content.isEmpty()&&content.get(0) instanceof mindustry.type.UnitType;
         int columns=units?Math.max(1,(int)(width/130)):Math.max(2,(int)(width/48));Table grid=new Table();String[] query={""};
@@ -39,7 +39,7 @@ public final class ContentPicker {
     }
 
     public static <T extends UnlockableContent> void show(String title, List<T> content, boolean allowNone, Consumer<T> selected) {
-        BaseDialog dialog = new BaseDialog(title);
+        BaseDialog dialog = new BaseDialog(title);dialog.name="st-modal";
         dialog.addCloseButton();
         Table list = new Table();
         Runnable[] refresh = new Runnable[1];

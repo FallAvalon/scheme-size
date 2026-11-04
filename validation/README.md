@@ -1,3 +1,7 @@
+# Проверки быстрых инструментов 0.4.2
+
+Актуальный срез: [fast042](fast042/README.md), [отчёт № 20](../reports/20_fast_map_controls.md).
+
 # Проверки телепорта 0.4.1
 
 Актуальный срез: [teleport041](teleport041/README.md), [отчёт № 19](../reports/19_cursor_teleport.md).
