@@ -1,0 +1,6 @@
+PASS scheme-size-plus.jar repeated clean build SHA-256 b608dd173d4473804a486a51420252e9e6e177bac10479217d811fb842c87910
+PASS scheme-size-god.jar repeated clean build SHA-256 7f4fa5fdbb4be8f62d72e1ef5788d8a1cfe2481c05d1eb6f8639bc3b8ad43514
+PASS plus UI100, headless and clean-repeat JARs identical.
+PASS god UI100, headless and clean-repeat JARs identical.
+PASS 52 host/event/shared classes identical to released 0.3.1; this is not a new WAN/vanilla runtime test.
+PASS plus UI200 JAR identical to final build: b608dd173d4473804a486a51420252e9e6e177bac10479217d811fb842c87910.

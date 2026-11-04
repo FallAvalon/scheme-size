@@ -65,6 +65,7 @@ public final class HostPanel extends ToolDialog {
     private int itemIndex;
     private int unitIndex;
     private boolean unitsCreate;
+    private boolean spawnTeams;
     private String selectedPlayerUuid;
     private String playerSearch = "";
     private String itemDelta = "100";
@@ -499,17 +500,33 @@ public final class HostPanel extends ToolDialog {
     private boolean destinationUnavailable(Team team) { return team == null || selectedPlayer() == null; }
 
     private void compactTeam(Table root){
-        boolean narrow=ToolUi.width()<260;
-        if(narrow)root.add(selectedTeam().localized()).wrap().row();
+        int columns=ToolUi.width()>=320?2:1;float width=(ToolUi.width()-4*(columns-1))/columns;
         root.table(row->{
-            if(!narrow)row.add(selectedTeam().localized()).wrap().width(ToolUi.width()-(Team.baseTeams.length-1)*36).left();
-            int columns=Math.max(1,(int)(ToolUi.width()/36));
             for(int i=1;i<Team.baseTeams.length;i++){
                 final int index=i-1;Team team=Team.baseTeams[i];
-                row.button("●",()->{teamIndex=index;coreIndex=0;rebuild();}).size(36).color(team.color).tooltip(team.localized());
-                if(narrow&&i%columns==0)row.row();
+                var button=row.button(team.localized(),ToolUi.toggleStyle(),()->{teamIndex=index;coreIndex=0;spawnTeams=false;rebuild();}).width(width).minHeight(36).padBottom(4).padRight(4).get();
+                button.getLabel().setColor(team.color);button.getLabel().setWrap(true);button.setChecked(selectedTeam()==team);button.name="st-create-team-"+team.id;
+                if(i%columns==0)row.row();
             }
         }).row();
+    }
+    private void spawnTeamChoices(Table root){
+        Team current=selectedTeam();Team extra=current!=Team.sharded&&current!=Team.crux?current:Team.blue;
+        int columns=ToolUi.width()>=320?2:1;float width=(ToolUi.width()-4*(columns-1))/columns;
+        root.table(row->{int index=0;
+            for(Team team:new Team[]{Team.sharded,Team.crux,extra}){
+                var style=ToolUi.toggleStyle();style.fontColor=team.color;style.checkedFontColor=team.color;
+                var button=row.button(team.localized(),style,()->{teamIndex=baseTeamIndex(team);coreIndex=0;spawnTeams=false;rebuild();}).width(width).height(36).padRight(4).padBottom(4).get();
+                button.margin(4);button.getLabel().setFontScale(.8f);button.getLabel().setEllipsis(true);button.setChecked(current==team);button.name="st-create-team-"+team.id;
+                if(++index%columns==0)row.row();
+            }
+            row.button(text("st.ui.other-teams"),()->{spawnTeams=!spawnTeams;rebuild();}).width(width).height(36).padBottom(4).get().getLabel().setFontScale(.8f);
+        }).row();
+        if(spawnTeams)compactTeam(root);
+    }
+    private void changeSpawnCount(int delta){
+        long count;try{count=Long.parseLong(spawnCount.trim());}catch(NumberFormatException ignored){count=1;}
+        spawnCount=""+Math.max(1,Math.min(actions.maxSpawnBatch(),count+(long)delta));rebuild();
     }
     private void items(Table root) {
         if(!actions.hasGame()){root.add(text("st.no-game")).wrap().row();return;}
@@ -544,24 +561,28 @@ public final class HostPanel extends ToolDialog {
     }
     private UnitToolsDialog unitTools(){return (UnitToolsDialog)views.computeIfAbsent("openUnitTools",ignored->new UnitToolsDialog(actions));}
     private void units(Table root) {
-        root.table(t->{
-            boolean narrow=ToolUi.width()<260;float width=narrow?ToolUi.width():(ToolUi.width()-4)/2;
-            var map=t.button(text("st.roster.tab-map"),mindustry.ui.Styles.togglet,()->{unitsCreate=false;rebuild();}).width(width).minHeight(40).get();map.setChecked(!unitsCreate);map.getLabel().setWrap(true);
-            if(narrow)t.row();
-            var create=t.button(text("st.roster.tab-create"),mindustry.ui.Styles.togglet,()->{unitsCreate=true;rebuild();}).width(width).minHeight(40).get();create.setChecked(unitsCreate);create.getLabel().setWrap(true);
-        }).row();
+        ToolUi.tabs(root,text("st.roster.tab-map"),text("st.roster.tab-create"),unitsCreate,()->{unitsCreate=false;rebuild();},()->{unitsCreate=true;rebuild();});
         if(!unitsCreate){unitTools().render(root,this::rebuild);return;}
         if(!actions.hasGame()){root.add(text("st.no-game")).wrap().row();return;}
-        compactTeam(root);UnitType type=selectedUnit();
-        ToolUi.action(root,text("st.unit")+": "+(type==null?"—":type.localizedName),"st.help.unit-pick",()->ContentPicker.icons(text("st.unit"),availableUnits(),type,chosen->{unitIndex=availableUnits().indexOf(chosen);rebuild();}));
-        ToolUi.valueField(root,text("st.amount"),spawnCount,value->spawnCount=limit(value,10));
-        ToolUi.action(root,text("st.workspace.point"),"st.help.unit-spawn",()->attempt(()->{
+        ToolUi.heading(root,text("st.ui.step-team"),"st.help.unit-spawn");spawnTeamChoices(root);UnitType type=selectedUnit();
+        ToolUi.heading(root,text("st.ui.step-unit"),"st.help.unit-pick");
+        var typeButton=ToolUi.action(root,text("st.unit")+": "+(type==null?"—":type.localizedName),"st.help.unit-pick",()->ContentPicker.icons(text("st.unit"),availableUnits(),type,chosen->{unitIndex=availableUnits().indexOf(chosen);rebuild();}));
+        if(type!=null)typeButton.image(type.uiIcon).size(32).padLeft(4);
+        if(ToolUi.width()<320)root.add(text("st.amount")).left().row();
+        root.table(row->{
+            if(ToolUi.width()>=320)row.add(text("st.amount")).growX().minWidth(0).left();
+            row.button("−",()->changeSpawnCount(-1)).size(36);
+            row.field(spawnCount,value->spawnCount=limit(value,10)).width(ToolUi.width()>=320?80:ToolUi.width()-80).height(40).get().setMessageText(text("st.amount"));
+            row.button("+",()->changeSpawnCount(1)).size(36);
+        }).row();
+        root.table(chips->{for(int value:new int[]{1,10,50})chips.button(""+value,ToolUi.toggleStyle(),()->{spawnCount=""+value;rebuild();}).width((ToolUi.width()-8)/3).height(36).padRight(4).get().setChecked(spawnCount.equals(""+value));}).row();
+        ToolUi.heading(root,text("st.ui.step-place"),"st.help.unit-spawn");
+        var place=ToolUi.action(root,text("st.workspace.point"),"st.help.unit-spawn",()->attempt(()->{
             Team team=selectedTeam();UnitType selected=selectedUnit();int count=parseInt(spawnCount,1,actions.maxSpawnBatch(),"st.error.input");
             new AreaSelectionDialog(1,point->confirm(Core.bundle.format("st.workspace.spawn-confirm",selected.localizedName,count,point.x1(),point.y1()),()->perform(()->{
                 SpawnResult result=actions.spawn(team,selected,point.x1()*Vars.tilesize,point.y1()*Vars.tilesize,count);return Core.bundle.format("st.spawn-result",result.spawned());
-            }))).show();
-        })).setDisabled(!actions.isAvailable()||type==null);
-        ToolUi.action(root,text("st.unit-tools"),"st.help.unit-tools",this::openUnitTools);
+            })),selected,team,count).show();
+        }));place.setDisabled(!actions.isAvailable()||type==null);ToolUi.emphasize(place,false);
         ToolUi.action(root,text("st.workspace.advanced")+(advanced?" ▴":" ▾"),"st.help.unit-near",()->{advanced=!advanced;rebuild();});
         if(!advanced)return;
         Player player=selectedPlayer();

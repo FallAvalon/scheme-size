@@ -18,13 +18,19 @@ public final class ContentPicker {
     public static <T extends UnlockableContent> void icons(String title,List<T> content,T current,Consumer<T> selected){
         BaseDialog dialog=new BaseDialog(title);dialog.addCloseButton();
         float width=Math.min(440,Core.scene.getWidth()/UiSizing.scale()-80);
-        int columns=Math.max(2,(int)(width/48));Table grid=new Table();String[] query={""};
+        boolean units=!content.isEmpty()&&content.get(0) instanceof mindustry.type.UnitType;
+        int columns=units?Math.max(1,(int)(width/130)):Math.max(2,(int)(width/48));Table grid=new Table();String[] query={""};
         Runnable refresh=()->{
             grid.clearChildren();int index=0;
             for(T value:content){
                 if(!(value.localizedName+" "+value.name).toLowerCase(Locale.ROOT).contains(query[0].toLowerCase(Locale.ROOT)))continue;
-                var button=grid.button(new arc.scene.style.TextureRegionDrawable(value.uiIcon),mindustry.ui.Styles.clearTogglei,32,()->{selected.accept(value);dialog.hide();}).size(48).tooltip(value.localizedName).get();
+                arc.scene.ui.Button button;
+                if(units){
+                    float card=(width-12)/columns;
+                    button=grid.button(body->{body.image(value.uiIcon).size(40).row();var label=body.add(value.localizedName).width(card-12).get();label.setEllipsis(true);label.setFontScale(.8f);},ToolUi.toggleStyle(),()->{selected.accept(value);dialog.hide();}).width(card).height(86).pad(2).get();
+                }else button=grid.button(new arc.scene.style.TextureRegionDrawable(value.uiIcon),mindustry.ui.Styles.clearTogglei,32,()->{selected.accept(value);dialog.hide();}).size(48).tooltip(value.localizedName).get();
                 button.name="st-content-"+value.name;button.setChecked(value==current);
+                if(units)button.addListener(new arc.scene.ui.Tooltip(t->t.add(value.localizedName)));
                 if(++index%columns==0)grid.row();
             }
         };

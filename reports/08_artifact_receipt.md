@@ -1,11 +1,23 @@
-# Текущие артефакты 0.3.1 — Size Plus / Size God
+# Текущие артефакты 0.4.0 — Size Plus / Size God
+
+Обновлён настольный интерфейс; полный паритет O279 не заявлен. [Проверки и скриншоты](18_concept_interface.md).
+
+| Редакция | JAR | SHA-256 |
+|---|---|---|
+| S+ | [scheme-size-plus.jar](../mod/build/libs/scheme-size-plus.jar) | b608dd173d4473804a486a51420252e9e6e177bac10479217d811fb842c87910 |
+| SG | [scheme-size-god.jar](../mod/build/libs/scheme-size-god.jar) | 7f4fa5fdbb4be8f62d72e1ef5788d8a1cfe2481c05d1eb6f8639bc3b8ad43514 |
+
+[Доказательство повторяемости и испытанных копий](../validation/ui040/artifact-proof.txt). Старые выпуски ниже сохранены отдельно.
+
+---
+# Исторические артефакты 0.3.1 — Size Plus / Size God
 
 Изменены только названия, иконки и упаковка; полный паритет не заявлен. [Проверки и публикация](17_github_publication.md).
 
 | Редакция | JAR | SHA-256 |
 |---|---|---|
-| S+ | [scheme-size-plus.jar](../mod/build/libs/scheme-size-plus.jar) | dc67d92620a766b985a0837cb6ba163696ec6640cc8880de113c4f90ccdd93d3 |
-| SG | [scheme-size-god.jar](../mod/build/libs/scheme-size-god.jar) | da9f18de60e92956d8361284a87f977d915528f956b72978e6d6079bd87f61a9 |
+| S+ | [scheme-size-plus.jar](https://github.com/FallAvalon/scheme-size-plus/releases/download/v0.3.1/scheme-size-plus.jar) | dc67d92620a766b985a0837cb6ba163696ec6640cc8880de113c4f90ccdd93d3 |
+| SG | [scheme-size-god.jar](https://github.com/FallAvalon/scheme-size-god/releases/download/v0.3.1/scheme-size-god.jar) | da9f18de60e92956d8361284a87f977d915528f956b72978e6d6079bd87f61a9 |
 
 [Совпадение испытанных JAR и повторной сборки](../validation/artifact-proof-031.txt). Ниже сохранён исторический отчёт 0.3.0; он не описывает новые иконки. Локальные build/-артефакты в Git не включаются, публичные JAR доступны в Releases соответствующих витрин.
 

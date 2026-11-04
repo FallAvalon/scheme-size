@@ -30,7 +30,8 @@ public final class SchematicsDialog extends ToolDialog {
     private String search = "", tag = "", name = "", labels = "", x1 = "0", y1 = "0", x2 = "4", y2 = "4", pasteX = "0", pasteY = "0";
     private String warning = "";
     private Table list;
-    private boolean advanced, imports;
+    private boolean advanced, imports, captureTab;
+    private int visibleCount=12;
     @Override public boolean compactContent(){return true;}
     @Override public void refreshWidth(){rebuild();}
 
@@ -52,10 +53,23 @@ public final class SchematicsDialog extends ToolDialog {
     }
     private void rebuild(){
         Table root=ToolUi.content(this);
+        ToolUi.tabs(root,text("st.ui.library"),text("st.ui.from-map"),captureTab,()->{captureTab=false;rebuild();},()->{captureTab=true;rebuild();});
+        if(!captureTab){
+            ToolUi.field(root,text("st.search"),search,value->{search=value;visibleCount=12;refillList();});
+            list=new Table();root.pane(list).width(ToolUi.width()).maxHeight(Math.min(260,UiSizing.toolHeight(.4f))).scrollX(false).row();refillList();
+        }else list=null;
+        if(selected!=null){
+            String title=selected.tags.get("name",text("st.schematic.unnamed"));
+            root.add(title+" · "+selected.width+" × "+selected.height).wrap().color(mindustry.graphics.Pal.accent).row();
+            details(root);
+        }
         ToolUi.action(root,text("st.selection.title"),"st.help.capture",this::captureOnMap).setDisabled(!Vars.state.isGame());
-        if(selected!=null)details(root);
-        ToolUi.field(root,text("st.search"),search,value->{search=value;refillList();});
-        list=new Table();root.pane(list).width(ToolUi.width()).maxHeight(132).scrollX(false).row();refillList();
+        if(selected!=null){
+            ToolUi.action(root,text("st.schematic.save-copy"),"st.help.save",()->{
+                Vars.ui.showTextInput(text("st.schematic.name"),text("st.schematic.name"),80,name,false,value->run(()->{name=value;metadata();store.saveCopy(selected);refresh();captureTab=false;rebuild();Vars.ui.showInfoFade(text("st.schematic.saved"));}));
+            });
+        }
+        if(captureTab||advanced)
         ToolUi.action(root,text("st.short.layer")+": "+text("st.schematic.layer."+layer.name().toLowerCase(Locale.ROOT)),"st.help.layer",()->{
             BaseDialog picker=new BaseDialog(text("st.short.layer"));picker.addCloseButton();
             for(var value:SchematicTools.Layer.values())picker.cont.button(text("st.schematic.layer."+value.name().toLowerCase(Locale.ROOT)),()->{layer=value;picker.hide();rebuild();}).width(240).height(44).row();picker.show();
@@ -93,22 +107,32 @@ public final class SchematicsDialog extends ToolDialog {
             if (!Strings.stripColors(title).toLowerCase(Locale.ROOT).contains(query)
                     || !filter.isEmpty() && !schematic.labels.contains(value -> value.toLowerCase(Locale.ROOT).contains(filter))) continue;
             matches++;
-            var button=list.button(title + "  " + schematic.width + "×" + schematic.height, () -> select(schematic)).width(ToolUi.width()-24).minHeight(40f).get();button.getLabel().setWrap(true);list.row();
+            if(matches>visibleCount)continue;
+            int columns=ToolUi.width()>=320?2:1;float card=(ToolUi.width()-24-6*(columns-1))/columns;
+            var button=list.button(cell->{
+                cell.add(new Preview(schematic)).size(card-16,68).row();
+                var label=cell.add(title).width(card-16).get();label.setEllipsis(true);label.setFontScale(.85f);cell.row();
+                cell.add(schematic.width+" × "+schematic.height).color(arc.graphics.Color.lightGray).get().setFontScale(.7f);
+            },ToolUi.toggleStyle(),()->select(schematic)).width(card).minHeight(112).pad(3).get();
+            button.setChecked(schematic==selected);button.name="st-schematic-card-"+(matches-1);button.addListener(new arc.scene.ui.Tooltip(t->t.add(title)));
+            if(matches%columns==0)list.row();
         }
-        if (matches == 0) list.add(text("st.schematic.no-matches")).row();
+        list.row();
+        if(matches>visibleCount)list.button(text("st.ui.more-schematics"),()->{visibleCount+=12;refillList();}).width(ToolUi.width()-24).height(40).colspan(ToolUi.width()>=320?2:1).row();
+        if (matches == 0) list.add(text(library.isEmpty()?"st.ui.empty-library":"st.schematic.no-matches")).wrap().width(ToolUi.width()-24).row();
     }
     private void select(Schematic value) {
         sectionParent = null;
         selected = value; name = value.tags.get("name", ""); labels = String.join(", ", value.labels.toArray(String.class)); rebuild();
     }
     private void details(Table root){
-        root.add(selected.width+"×"+selected.height+" · "+selected.tiles.size).wrap().row();
-        if(!SchematicTools.terrain(selected))ToolUi.action(root,text("st.schematic.use"),"st.help.paste",()->run(()->{
+        if(!SchematicTools.terrain(selected)){
+        var use=ToolUi.action(root,text("st.schematic.use"),"st.help.paste",()->run(()->{
             Schematic value=selected;
             if(value.tiles.size>SchematicTools.MAX_PLACEMENT_PLANS)Vars.ui.showConfirm(text("st.schematic.title"),text("st.schematic.dense-warning"),()->run(()->{SchematicTools.use(value);hide();}));
             else{SchematicTools.use(value);hide();}
-        })).setDisabled(!Vars.state.isGame());
-        else{
+        }));use.setDisabled(!Vars.state.isGame());ToolUi.emphasize(use,false);
+        }else{
             ToolUi.action(root,text("st.workspace.point"),"st.help.terrain",()->new AreaSelectionDialog(1,p->{pasteX=""+p.x1();pasteY=""+p.y1();pasteTerrain();}).show()).setDisabled(Vars.net.client()||!Vars.state.isGame());
             ToolUi.action(root,text("st.arena.undo"),"st.help.undo",()->run(()->arena.undo())).setDisabled(Vars.net.client()||!Vars.state.isGame());
             if(TerrainPaste.active()){
@@ -120,7 +144,6 @@ public final class SchematicsDialog extends ToolDialog {
         root.add(new Preview(selected)).size(Math.min(260,ToolUi.width()),Math.min(160,ToolUi.width()*.6f)).row();
         ToolUi.valueField(root,text("st.schematic.name"),name,v->name=v);
         ToolUi.valueField(root,text("st.schematic.tags"),labels,v->labels=v);
-        ToolUi.action(root,text("st.schematic.save-copy"),"st.help.save",()->run(()->{metadata();store.saveCopy(selected);refresh();rebuild();Vars.ui.showInfoFade(text("st.schematic.saved"));}));
         ToolUi.action(root,text("st.schematic.export-base64"),"st.help.export",()->run(()->{metadata();Core.app.setClipboardText(SchematicCodec.writeBase64(selected));}));
         ToolUi.action(root,text("st.schematic.export-file"),"st.help.export",()->{
             String extension=SchematicStore.extension(selected);new FileChooserParams().open(false).extensions(extension).name("schematic."+extension).submit(file->run(()->{metadata();SchematicStore.exportNew(selected,file.file().toPath());}));
@@ -168,17 +191,23 @@ public final class SchematicsDialog extends ToolDialog {
         private final Schematic schematic;
         Preview(Schematic schematic) { this.schematic = schematic; }
         @Override public void draw() {
+            Draw.flush();if(!clipBegin())return;
+            try{
             Draw.color(0.12f, 0.12f, 0.12f, parentAlpha); Fill.rect(x + width / 2, y + height / 2, width, height);
             float cell = Math.min(width / schematic.width, height / schematic.height);
             float left = x + (width - cell * schematic.width) / 2, bottom = y + (height - cell * schematic.height) / 2;
             int stride = Math.max(1, (schematic.tiles.size + 8191) / 8192);
             for (int i = 0; i < schematic.tiles.size; i += stride) {
                 var tile = schematic.tiles.get(i);
-                Draw.color(tile.block.mapColor, parentAlpha);
                 float size = tile.block instanceof mindustry.world.blocks.environment.Floor ? 1 : tile.block.size;
-                Fill.square(left + (tile.x + 0.5f) * cell, bottom + (tile.y + 0.5f) * cell, Math.max(0.5f, size * cell / 2));
+                float cx=left+(tile.x+.5f)*cell,cy=bottom+(tile.y+.5f)*cell;
+                if(stride==1&&!(tile.block instanceof mindustry.world.blocks.environment.Floor)){
+                    Draw.color(arc.graphics.Color.white,parentAlpha);Draw.rect(tile.block.fullIcon,cx,cy,size*cell,size*cell,tile.block.rotate?tile.rotation*90:0);
+                }else{
+                    Draw.color(tile.block.mapColor,parentAlpha);Fill.square(cx,cy,Math.max(.5f,size*cell/2));
+                }
             }
-            Draw.reset();
+            }finally{Draw.reset();Draw.flush();clipEnd();}
         }
     }
 }

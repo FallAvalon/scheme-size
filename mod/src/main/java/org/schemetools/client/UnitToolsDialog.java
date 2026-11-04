@@ -75,33 +75,53 @@ public final class UnitToolsDialog extends ToolDialog {
         var counts=new java.util.TreeMap<Integer,Integer>();int total=0;
         for(Unit unit:Groups.unit)if(eligible(unit)){counts.merge(unit.team.id,1,Integer::sum);total++;}
         counts.putIfAbsent(teamId,0);
-        root.add(text("st.roster.team")+": "+(allTeams?text("st.roster.all-teams"):mindustry.game.Team.get(teamId).localized())).wrap().row();
-        var all=root.button(text("st.roster.all-teams")+" · "+total,mindustry.ui.Styles.togglet,()->{allTeams=true;changeFilter();}).minHeight(36).get();all.setChecked(allTeams);all.getLabel().setWrap(true);root.row();
+        final int totalCount=total;
+        root.table(header->{
+            header.add(text("st.roster.team")).left().growX().minWidth(0);
+            var all=header.button(text("st.roster.all-teams")+" · "+totalCount,ToolUi.toggleStyle(),()->{allTeams=true;changeFilter();}).width(ToolUi.width()*.48f).minHeight(36).get();all.margin(4);all.setChecked(allTeams);all.getLabel().setFontScale(.75f);all.getLabel().setWrap(true);
+            ToolUi.helpButton(header,text("st.roster.team"),"st.roster.help");
+        }).row();
         int columns=ToolUi.width()>=320?2:1;
         float card=(ToolUi.width()-4*(columns-1))/columns;
         root.table(teams->{int index=0;for(var entry:counts.entrySet()){
             var team=mindustry.game.Team.get(entry.getKey());
-            var button=teams.button(team.localized()+" · "+entry.getValue(),mindustry.ui.Styles.togglet,()->{allTeams=false;teamId=team.id;changeFilter();}).width(card).minHeight(40).padBottom(4).padRight(4).get();
+            var style=ToolUi.toggleStyle();style.fontColor=team.color;style.checkedFontColor=team.color;
+            var button=teams.button(team.localized()+" · "+entry.getValue(),style,()->{allTeams=false;teamId=team.id;changeFilter();}).width(card).minHeight(40).padBottom(4).padRight(4).get();
             button.getLabel().setWrap(true);button.getLabel().setColor(team.color);button.setChecked(!allTeams&&teamId==team.id);button.name="st-roster-team-"+team.id;
             if(++index%columns==0)teams.row();
         }}).row();
         var groups=new java.util.TreeMap<Integer,Integer>();
         for(Unit unit:Groups.unit)if(eligible(unit)&&(allTeams||unit.team.id==teamId))groups.merge((int)unit.type.id,1,Integer::sum);
-        var types=root.button(text("st.roster.all-types")+" · "+groups.size(),mindustry.ui.Styles.togglet,()->{allTypes=true;typeIds.clear();changeFilter();}).minHeight(36).get();types.setChecked(allTypes);types.getLabel().setWrap(true);root.row();
+        root.table(header->{
+            header.add(text("st.ui.type")).left().growX().minWidth(0);
+            var types=header.button(text("st.roster.all-types"),ToolUi.toggleStyle(),()->{allTypes=true;typeIds.clear();changeFilter();}).width(ToolUi.width()*.38f).minHeight(36).get();types.margin(4);types.setChecked(allTypes);types.getLabel().setFontScale(.8f);types.getLabel().setWrap(true);
+            ToolUi.helpButton(header,text("st.ui.type"),"st.roster.help");
+        }).row();
         root.table(grid->{int index=0;for(var entry:groups.entrySet()){
             var type=Vars.content.unit(entry.getKey());
-            var button=grid.button(cell->{cell.image(type.uiIcon).size(28);cell.add(type.localizedName+" ×"+entry.getValue()).wrap().width(Math.max(50,card-80)).padLeft(4);},mindustry.ui.Styles.togglet,()->{
+            boolean marked=!allTypes&&typeIds.contains((int)type.id);
+            var button=grid.button(cell->{
+                cell.image(type.uiIcon).size(34).padRight(5);
+                cell.table(texts->{texts.add(type.localizedName).wrap().width(Math.max(55,card-84)).left().row();texts.add("×"+entry.getValue()).color(arc.graphics.Color.lightGray).left();});
+                if(marked)cell.image(mindustry.gen.Icon.ok).size(16).color(mindustry.graphics.Pal.accent);
+            },ToolUi.toggleStyle(),()->{
                 if(allTypes){allTypes=false;typeIds.clear();typeIds.add((int)type.id);}else if(!typeIds.remove((int)type.id))typeIds.add((int)type.id);
                 changeFilter();
-            }).width(card).minHeight(52).padBottom(4).padRight(4).get();
+            }).width(card).minHeight(68).padBottom(4).padRight(4).get();
             button.setChecked(!allTypes&&typeIds.contains((int)type.id));button.name="st-roster-type-"+type.name;
             button.addListener(new arc.scene.ui.Tooltip(t->t.add(type.localizedName)));if(++index%columns==0)grid.row();
         }}).row();
         if(groups.isEmpty())root.add(text("st.units-empty")).wrap().row();
         var matching=new ArrayList<Unit>();for(Unit unit:Groups.unit)if(matches(unit))matching.add(unit);
-        ToolUi.action(root,text("st.roster.kill-matching")+" ("+matching.size()+")","st.roster.help",()->confirmKill(matching)).setDisabled(!actions.isAvailable()||matching.isEmpty());
+        String teamName=allTeams?text("st.roster.all-teams"):mindustry.game.Team.get(teamId).localized();
+        String typeName=allTypes?text("st.roster.all-types"):typeIds.size()==1?Vars.content.unit(typeIds.iterator().next()).localizedName:Core.bundle.format("st.ui.type-count",typeIds.size());
+        root.add(teamName+" · "+typeName+" · "+matching.size()).wrap().color(mindustry.graphics.Pal.accent).row();
+        String killLabel=!allTypes&&typeIds.size()==1?Core.bundle.format("st.ui.kill-type",matching.size(),typeName):text("st.roster.kill-matching")+" ("+matching.size()+")";
+        var kill=ToolUi.action(root,killLabel,"st.roster.help",()->confirmKill(matching));kill.name="st-roster-kill-matching";kill.setDisabled(!actions.isAvailable()||matching.isEmpty());ToolUi.emphasize(kill,true);
         ToolUi.action(root,text("st.units-select-area"),"st.roster.help",this::selectArea).setDisabled(!actions.isAvailable());
-        ToolUi.action(root,text("st.units-kill-selected")+" ("+chosen.size()+")","st.roster.help",()->confirmKill(new ArrayList<>(chosen))).setDisabled(!actions.isAvailable()||chosen.isEmpty());
+        if(!chosen.isEmpty()){
+            var remove=ToolUi.action(root,text("st.units-kill-selected")+" ("+chosen.size()+")","st.roster.help",()->confirmKill(new ArrayList<>(chosen)));remove.setDisabled(!actions.isAvailable());ToolUi.emphasize(remove,true);
+        }
         var individual=root.button(text("st.roster.individuals")+(showIndividuals?" ▴":" ▾"),()->{showIndividuals=!showIndividuals;repaint.run();}).minHeight(36).get();individual.getLabel().setWrap(true);root.row();
         if(showIndividuals){
             root.table(row->{
@@ -111,6 +131,7 @@ public final class UnitToolsDialog extends ToolDialog {
             details=new arc.scene.ui.layout.Table();details.defaults().width(ToolUi.width()).left().padBottom(6);root.add(details).row();
             list=new arc.scene.ui.layout.Table();list.defaults().width(ToolUi.width()).left().padBottom(4);root.add(list).row();refill();showDetails();
         }else{list=null;details=null;}
+        root.add(text("st.ui.players-protected")).color(arc.graphics.Color.lightGray).wrap().row();
         int[] last={signature()};float[] checked={arc.util.Time.time};
         root.update(()->{if(arc.util.Time.time-checked[0]<45||Core.scene.hasDialog()||Core.scene.hasKeyboard())return;checked[0]=arc.util.Time.time;int now=signature();if(world!=Vars.world.tiles||now!=last[0])repaint.run();});
     }
