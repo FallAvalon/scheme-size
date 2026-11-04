@@ -41,3 +41,14 @@
 ![God — настоящее меню](screenshots/ui22-god-quick.png)
 
 ![Plus — 200%](screenshots/ui22-plus-200.png)
+
+## Публикация и проверка импорта
+
+Исходники: коммит `5e9fe15e4090ae708f9b72befad9aac69fa32a6f`, тег `v0.5.1`. Витрины: Plus `f2805a2`, God `ff1d1c7`. Старые релизы сохранены; в каждом новом релизе только соответствующий JAR и SHA256SUMS.txt.
+
+- [Plus 0.5.1](https://github.com/FallAvalon/scheme-size-plus/releases/tag/v0.5.1): SHA-256 `e15d5095dbd064372d25a43dbf05f56f182308c3cebf340cf5a26ba72b1ceb4c`.
+- [God 0.5.1](https://github.com/FallAvalon/scheme-size-god/releases/tag/v0.5.1): SHA-256 `e201e2f8b524ad75c4ef67261b08a30d4c4c5b0e207ad3bedbd9a29ca9a19fe3`.
+
+Штатный импорт из GitHub прошёл из двух пустых профилей 160.7: [Plus](../validation/hex051/github-import-plus.txt), [God](../validation/hex051/github-import-god.txt). Игра загрузила версию 0.5.1, нашла скомпилированный main; хеши совпали с проверенными артефактами.
+
+Установка: Модификации → Импортировать модификацию → Из GitHub → `FallAvalon/scheme-size-plus` либо `FallAvalon/scheme-size-god`, затем перезапуск. Обычно достаточно одной редакции. Обновление внешнего каталога модов этим не подтверждается.
