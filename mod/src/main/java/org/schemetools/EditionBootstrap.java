@@ -51,6 +51,7 @@ public final class EditionBootstrap {
         LocalAutopilot autopilot = new LocalAutopilot();
         autopilot.install();
         Events.on(ClientLoadEvent.class, event -> {
+            Events.run(Trigger.update, org.schemetools.schematic.SchematicTools::clearFinishedPreview);
             HostPanel panel = new HostPanel(actions, bossRounds, presets, edition, routes, schematics, console, autopilot);
             ModKeys keys = new ModKeys(edition, panel, routes);
             panel.setKeys(keys);

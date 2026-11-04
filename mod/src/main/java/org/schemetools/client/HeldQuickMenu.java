@@ -53,6 +53,7 @@ final class HeldQuickMenu {
                     Vec2 p=pointer();Element hit=Core.scene.hit(p.x,p.y,true);
                     if(hit==null||!hit.isDescendantOf(root)){dismissedMouse=button;close();guardWorldClick(button);return true;}
                 }
+                if(SchematicTools.beforePlacement(button)){dismissedMouse=button;guardWorldClick(button);return true;}
                 return false;
             }
             @Override public boolean touchUp(int x,int y,int pointer,KeyCode button){
@@ -60,7 +61,7 @@ final class HeldQuickMenu {
                 if(button==dismissedMouse){dismissedMouse=null;return true;}
                 return false;
             }
-            @Override public boolean keyDown(KeyCode key){if(shown&&key==KeyCode.escape){InputDismissal.run(HeldQuickMenu.this::close);return true;}return false;}
+            @Override public boolean keyDown(KeyCode key){if(shown&&key==KeyCode.escape){InputDismissal.run(HeldQuickMenu.this::close);return true;}if(!shown&&SchematicTools.beforePlacement(key)){guardWorldClick(key);return true;}return false;}
             @Override public boolean scrolled(float x,float y){
                 if(!shown)return false;var p=pointer();Element hit=Core.scene.hit(p.x,p.y,true);
                 Element focus=Core.scene.getScrollFocus();if(focus!=null&&focus.isDescendantOf(root)&&(hit==null||!hit.isDescendantOf(root)))Core.scene.setScrollFocus(null);
@@ -113,7 +114,7 @@ final class HeldQuickMenu {
     }
     private Vec2 pointer(){return Core.scene.screenToStageCoordinates(new Vec2(Core.input.mouseX(),Core.input.mouseY()));}
     boolean visible(){return shown;}
-    private void reset(){worldGeneration++;latched=false;mouseHeld=false;heldMouse=null;dismissedMouse=null;close();if(inputGate!=null){inputGate.hide(null);inputGate=null;}}
+    private void reset(){worldGeneration++;latched=false;mouseHeld=false;heldMouse=null;dismissedMouse=null;SchematicTools.clearPreview();close();if(inputGate!=null){inputGate.hide(null);inputGate=null;}}
     /** DesktopInput also polls clicks after the scene consumes them. */
     private void guardWorldClick(KeyCode button){
         if(inputGate!=null)inputGate.hide(null);
@@ -184,7 +185,7 @@ final class HeldQuickMenu {
         float card=80*scale/UiSizing.scale();int count=0;
         if(!filter.isBlank())for(Schematic schematic:library)if(QuickSchematicsDialog.matches(schematic,filter,"")&&!SchematicTools.terrain(schematic)){
             var b=grid.button(t->{t.margin(0);t.stack(new SchematicImage(schematic).setScaling(Scaling.fit),new Table(title->{title.top();title.table(Styles.black3,name->{var label=name.add(schematic.name()).width(card-8).get();label.setFontScale(.6f);label.setEllipsis(true);}).growX();})).grow();},Styles.cleart,()->{
-                try{if(placing)return;placing=true;SchematicTools.use(schematic);close();guardWorldClick(KeyCode.mouseLeft);}catch(Exception ex){Vars.ui.showInfoFade(Core.bundle.get(ex.getMessage(),Core.bundle.get("st.schematic.error.data")));}
+                try{if(placing)return;placing=true;SchematicTools.use(schematic);close();guardWorldClick(KeyCode.mouseLeft);}catch(Exception ex){placing=false;Vars.ui.showInfoFade(Core.bundle.get(ex.getMessage(),Core.bundle.get("st.schematic.error.data")));}
             }).size(card).pad(2*scale/UiSizing.scale()).get();b.name="st-quick-card-"+count;if(++count%columns==0)grid.row();
         }
         if(count==0){var assign=grid.button(Core.bundle.get("st.quick.assign-tag"),Styles.cleart,()->{}).width(pw/UiSizing.scale()-8).minHeight(40).get();assign.name="st-quick-assign";configureOnPress(assign,slot);grid.row();}

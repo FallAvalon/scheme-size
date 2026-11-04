@@ -1,0 +1,7 @@
+[11-05-2026 00:08:38] [I] 2 mods loaded.
+[11-05-2026 00:08:38] [I] Server loaded. Type 'help' for help.
+[11-05-2026 00:08:38] [I] Mods:
+[11-05-2026 00:08:38] [I]   Size God (SG) 0.5.4 
+[11-05-2026 00:08:38] [I]   Size Plus (S+) 0.5.4 
+[11-05-2026 00:08:38] [I] Mod directory: C:\DiskSpasenie\ShemeSize\work\headless-1fab93e034c842f3969960795a48b87d\both\config\mods
+[11-05-2026 00:08:38] [I] Shutting down server.

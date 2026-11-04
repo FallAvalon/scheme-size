@@ -11,6 +11,11 @@ import mindustry.gen.Building;
 import mindustry.world.Block;
 import mindustry.world.blocks.ConstructBlock.ConstructBuild;
 import mindustry.world.blocks.environment.Floor;
+import mindustry.input.DesktopInput;
+import mindustry.input.Binding;
+import arc.Core;
+import arc.input.KeyCode;
+import arc.math.geom.Vec2;
 import org.schemetools.host.ArenaTools;
 
 import java.io.IOException;
@@ -20,6 +25,7 @@ import java.util.*;
 public final class SchematicTools {
     public static final int MAX_PLACEMENT_PLANS = 16384;
     public enum Layer { BUILDINGS, PLANS, FLOOR, OBSTACLES, OVERLAY, TERRAIN }
+    private static final Map<BuildPlan, Boolean> previewPlans = new IdentityHashMap<>();
     private SchematicTools() { }
 
     public static Schematic capture(int x1, int y1, int x2, int y2, Layer layer) throws IOException {
@@ -84,12 +90,41 @@ public final class SchematicTools {
     }
     public static void use(Schematic schematic) throws IOException {
         SchematicCodec.validate(schematic);
-        if (!Vars.state.isGame() || Vars.player.dead() || !Vars.player.unit().canBuild() || !Vars.state.rules.schematicsAllowed)
+        if (!Vars.state.isGame() || Vars.player.dead() || !(Vars.control.input instanceof DesktopInput desktop))
             throw new IOException("st.build.error.builder");
         if (terrain(schematic)) throw new IOException("st.schematic.error.terrain-place");
-        for (Stile tile : schematic.tiles) if (tile.block.privileged || tile.block.isBanned() || !tile.block.unlockedNow()
-                || !tile.block.supportsEnv(Vars.state.rules.env)) throw new IOException("st.build.error.content");
-        Vars.control.input.useSchematic(schematic);
+        // The native converter removes locked content even when checkHidden=false.
+        // Keep native plans and add the missing locked tiles solely for the local preview.
+        desktop.useSchematic(schematic, false);
+        for (Stile tile : schematic.tiles) if (!tile.block.unlockedNow()) {
+            desktop.selectPlans.add(new BuildPlan(tile.x + desktop.schematicX - schematic.width / 2,
+                tile.y + desktop.schematicY - schematic.height / 2, tile.rotation, tile.block, tile.config));
+        }
+        desktop.selectPlans.sort((a,b)->Integer.compare(b.block.schematicPriority,a.block.schematicPriority));
+        previewPlans.clear();
+        for(BuildPlan plan:desktop.selectPlans)previewPlans.put(plan,Boolean.TRUE);
+    }
+
+    /** Remove unavailable preview-only tiles immediately before the normal game places the selection. */
+    public static boolean beforePlacement(KeyCode key){
+        if(previewPlans.isEmpty()||Vars.headless||!Vars.state.isGame()||Vars.player.dead()
+                ||Binding.select.value==null||Binding.select.value.key!=key||Core.scene.hasDialog()||Core.scene.hasKeyboard())return false;
+        Vec2 p=Core.scene.screenToStageCoordinates(new Vec2(Core.input.mouseX(),Core.input.mouseY()));
+        if(Core.scene.hit(p.x,p.y,true)!=null)return false;
+        Seq<BuildPlan> plans=Vars.control.input.selectPlans;int before=plans.size;
+        plans.removeAll(plan->previewPlans.containsKey(plan)&&!availableForPlacement(plan.block));
+        previewPlans.clear();
+        if(before>plans.size&&plans.isEmpty())return true;
+        return false;
+    }
+    private static boolean availableForPlacement(Block block){
+        return Vars.state.rules.schematicsAllowed&&Vars.player.unit().canBuild()&&block!=null&&!block.privileged
+            &&!block.isBanned()&&block.unlockedNow()&&block.isVisible()&&block.environmentBuildable()
+            &&block.supportsEnv(Vars.state.rules.env);
+    }
+    public static void clearPreview(){previewPlans.clear();}
+    public static void clearFinishedPreview(){
+        if(!previewPlans.isEmpty()&&Vars.control.input.selectPlans.isEmpty())previewPlans.clear();
     }
 
     /** Assign by anchor: every building belongs to exactly one section, including boundary-crossing footprints. */
