@@ -37,4 +37,4 @@ API проверен отражением фактического Steam desktop
 Plus SHA-256: `e79f19544e1f90c66c2623d689c019edc71bbe8adad692e05f75fdee0f1d874b`.
 God SHA-256: `9d9547e23c811dd7633dad2c4cdeee2f17c0fe488354fe36dedd3039843802d9`.
 
-JAR: [Plus](../mod/build/libs/scheme-size-plus.jar), [God](../mod/build/libs/scheme-size-god.jar). Публикация и обратное скачивание фиксируются отдельным receipt после выполнения. Старые релизы сохраняются.
+JAR: [Plus](../mod/build/libs/scheme-size-plus.jar), [God](../mod/build/libs/scheme-size-god.jar). Обе редакции опубликованы: [Plus 0.4.1](https://github.com/FallAvalon/scheme-size-plus/releases/tag/v0.4.1), [God 0.4.1](https://github.com/FallAvalon/scheme-size-god/releases/tag/v0.4.1). [Обратное скачивание и SHA-256](../validation/teleport041/github-publication.txt) подтвердили совпадение с испытанными JAR; файлы витрин также сверены. Исходники — тег v0.4.1, коммит 3aa9e73. Старые релизы сохранены. Появление новой версии в игровом каталоге не проверено.
