@@ -33,6 +33,8 @@ final class HeldQuickMenu {
     private boolean shown,latched,mouseHeld,placing,configurationPending;
     private long worldGeneration;
     private KeyCode heldMouse;
+    private KeyCode dismissedMouse;
+    private BaseDialog inputGate;
     private int group=-1;
     private float anchorX,anchorY,scale;
     private static final Color ringColor=new Color(0,0,0,.65f);
@@ -43,10 +45,22 @@ final class HeldQuickMenu {
         Vars.ui.hudGroup.addChild(root);
         Core.input.getInputMultiplexer().addProcessor(0,new InputProcessor(){
             @Override public boolean touchDown(int x,int y,int pointer,KeyCode button){
-                if(entry==null||entry.binding().value==null||entry.binding().value.key!=button||!allowed()||!ModKeys.chord(entry).matches()||Core.scene.hasMouse())return false;
-                mouseHeld=true;heldMouse=button;latched=true;open();return true;
+                if(entry!=null&&entry.binding().value!=null&&entry.binding().value.key==button&&allowed()&&ModKeys.chord(entry).matches()){
+                    if(shown){close();}else if(!Core.scene.hasMouse()){open();}else return false;
+                    mouseHeld=true;heldMouse=button;latched=true;return true;
+                }
+                if(shown){
+                    Vec2 p=pointer();Element hit=Core.scene.hit(p.x,p.y,true);
+                    if(hit==null||!hit.isDescendantOf(root)){dismissedMouse=button;close();guardWorldClick(button);return true;}
+                }
+                return false;
             }
-            @Override public boolean touchUp(int x,int y,int pointer,KeyCode button){if(button!=heldMouse)return false;mouseHeld=false;heldMouse=null;latched=false;releasePicker();return true;}
+            @Override public boolean touchUp(int x,int y,int pointer,KeyCode button){
+                if(button==heldMouse){mouseHeld=false;heldMouse=null;latched=false;return true;}
+                if(button==dismissedMouse){dismissedMouse=null;return true;}
+                return false;
+            }
+            @Override public boolean keyDown(KeyCode key){if(shown&&key==KeyCode.escape){InputDismissal.run(HeldQuickMenu.this::close);return true;}return false;}
             @Override public boolean scrolled(float x,float y){
                 if(!shown)return false;var p=pointer();Element hit=Core.scene.hit(p.x,p.y,true);
                 Element focus=Core.scene.getScrollFocus();if(focus!=null&&focus.isDescendantOf(root)&&(hit==null||!hit.isDescendantOf(root)))Core.scene.setScrollFocus(null);
@@ -58,10 +72,14 @@ final class HeldQuickMenu {
     private boolean allowed(){return Vars.state.isGame()&&!Core.scene.hasKeyboard()&&!Core.scene.hasDialog()&&!Vars.ui.chatfrag.shown()&&!Vars.ui.consolefrag.shown()&&Core.settings.getBool("schemesize-module-schematics",true);}
     void update(ModKeys.Entry entry){
         this.entry=entry;
-        boolean down=mouseHeld||(!entry.binding().isUnset()&&Core.input.keyDown(entry.binding())&&ModKeys.chord(entry).matches());
-        if(!down){latched=false;releasePicker();return;}
         if(!allowed()){close();return;}
-        if(!latched&&Core.input.keyTap(entry.binding())&&!Core.scene.hasMouse()){latched=true;open();}
+        var axis=entry.binding().value;
+        boolean mouse=axis!=null&&axis.key!=null&&axis.key.type==KeyCode.KeyType.mouse;
+        if(!mouse){
+            boolean down=!entry.binding().isUnset()&&Core.input.keyDown(entry.binding())&&ModKeys.chord(entry).matches();
+            if(!down)latched=false;
+            else if(!latched&&Core.input.keyTap(entry.binding())&&(shown||!Core.scene.hasMouse())){latched=true;if(shown)close();else open();}
+        }
         if(shown)updateDirection();
     }
     /** Directional selection also works in the gaps; entering the preview keeps its group. */
@@ -95,16 +113,14 @@ final class HeldQuickMenu {
     }
     private Vec2 pointer(){return Core.scene.screenToStageCoordinates(new Vec2(Core.input.mouseX(),Core.input.mouseY()));}
     boolean visible(){return shown;}
-    private void reset(){worldGeneration++;latched=false;mouseHeld=false;heldMouse=null;close();}
-    private void releasePicker(){
-        Element assign=root.find("st-quick-assign");
-        if(shown&&group>=0&&assign!=null){
-            Vec2 p=pointer();Vec2 local=assign.stageToLocalCoordinates(p);
-            if(local.x>=0&&local.y>=0&&local.x<=assign.getWidth()&&local.y<=assign.getHeight()){
-                requestConfiguration(group);return;
-            }
-        }
-        close();
+    private void reset(){worldGeneration++;latched=false;mouseHeld=false;heldMouse=null;dismissedMouse=null;close();if(inputGate!=null){inputGate.hide(null);inputGate=null;}}
+    /** DesktopInput also polls clicks after the scene consumes them. */
+    private void guardWorldClick(KeyCode button){
+        if(inputGate!=null)inputGate.hide(null);
+        BaseDialog gate=new BaseDialog("");inputGate=gate;
+        Dialog.DialogStyle style=new Dialog.DialogStyle();style.titleFont=gate.getStyle().titleFont;style.titleFontColor=gate.getStyle().titleFontColor;
+        gate.setStyle(style);gate.clearChildren();gate.touchable=Touchable.disabled;gate.show(Core.scene,null);gate.setSize(0,0);int[] frames={0};
+        gate.update(()->{if(!Vars.state.isGame()||(++frames[0]>=2&&!Core.input.keyDown(button)&&!Core.input.keyTap(button))){gate.hide(null);if(inputGate==gate)inputGate=null;}});
     }
     /** Open outside the current mouse event so releasing either button cannot cancel the modal. */
     private void requestConfiguration(int slot){
@@ -168,7 +184,7 @@ final class HeldQuickMenu {
         float card=80*scale/UiSizing.scale();int count=0;
         if(!filter.isBlank())for(Schematic schematic:library)if(QuickSchematicsDialog.matches(schematic,filter,"")&&!SchematicTools.terrain(schematic)){
             var b=grid.button(t->{t.margin(0);t.stack(new SchematicImage(schematic).setScaling(Scaling.fit),new Table(title->{title.top();title.table(Styles.black3,name->{var label=name.add(schematic.name()).width(card-8).get();label.setFontScale(.6f);label.setEllipsis(true);}).growX();})).grow();},Styles.cleart,()->{
-                try{if(placing)return;placing=true;SchematicTools.use(schematic);close();}catch(Exception ex){Vars.ui.showInfoFade(Core.bundle.get(ex.getMessage(),Core.bundle.get("st.schematic.error.data")));}
+                try{if(placing)return;placing=true;SchematicTools.use(schematic);close();guardWorldClick(KeyCode.mouseLeft);}catch(Exception ex){Vars.ui.showInfoFade(Core.bundle.get(ex.getMessage(),Core.bundle.get("st.schematic.error.data")));}
             }).size(card).pad(2*scale/UiSizing.scale()).get();b.name="st-quick-card-"+count;if(++count%columns==0)grid.row();
         }
         if(count==0){var assign=grid.button(Core.bundle.get("st.quick.assign-tag"),Styles.cleart,()->{}).width(pw/UiSizing.scale()-8).minHeight(40).get();assign.name="st-quick-assign";configureOnPress(assign,slot);grid.row();}

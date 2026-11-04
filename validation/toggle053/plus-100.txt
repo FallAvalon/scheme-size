@@ -1,0 +1,14 @@
+[I] [Core] Initialized SDL v2.32.8
+[I] [Audio] Initialized SoLoud 20260903 using MiniAudio at 44100hz / 441 samples / 2 channels
+[I] [GL] Version: OpenGL 4.6.0 / NVIDIA Corporation / NVIDIA GeForce RTX 5050/PCIe/SSE2 / 4.6.0 NVIDIA 610.62
+[I] [GL] Max texture size: 32768
+[I] [GL] Using OpenGL 3 API.
+[I] [GL] Total available VRAM: 8.3 GB
+[I] [JAVA] Version: 25.0.1
+[I] [RAM] Available: 1.1 GB
+[I] [Mindustry] Version: 160.7
+[I] Loading mod: scheme-size-plus
+[I] Scheme-Size initialized edition: PLUS
+[I] Total time to load: 2190ms
+[I] Fetched 272 community servers.
+[I] SCHEMETOOLS_WORKSPACE_PASS toggle edition=plus scale=100: click/release, tag, preview placement, outside-click consume, middle toggle, Escape, G toggle; rendered=true syntheticArc=true

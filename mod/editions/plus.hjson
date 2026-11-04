@@ -2,7 +2,7 @@ name: scheme-size-plus
 displayName: Size Plus (S+)
 author: FallAvalon
 description: "Schematics, building tools, local overlays and enemy route forecasts. Desktop Mindustry 160.7. Testing release; full Scheme-Size parity is not yet verified."
-version: 0.5.2
+version: 0.5.3
 minGameVersion: 160.7
 main: org.schemetools.SchemeSizePlusMod
 hidden: true

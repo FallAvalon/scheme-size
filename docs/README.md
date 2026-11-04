@@ -26,6 +26,7 @@
 | [`../reports/09_user_acceptance.md`](../reports/09_user_acceptance.md) | Исправленные расхождения, три категории остатка, ручная приёмка и логи |
 | [`../reports/10_acceptance_inventory.md`](../reports/10_acceptance_inventory.md) | Категория остатка каждой из 79 строк матрицы |
 | [`../reports/11_ui_navigation.md`](../reports/11_ui_navigation.md) | Карта действий, единый контекст, настоящие кадры Plus/God и проверки ввода |
+| [Отчёт 24](../reports/24_click_quick_menu.md) | Меню схем по нажатию и выбор без удержания колёсика 0.5.3 |
 | [Отчёт 23](../reports/23_tag_assignment_fix.md) | Исправление закрывающегося назначения тегов, проверка порядка отпускания кнопок 0.5.2 |
 | [Отчёт 22](../reports/22_original_style_quick_menu.md) | Шестигранное меню по образцу оригинала O279, миниатюры и проверки 0.5.1 |
 | [Отчёт 21](../reports/21_held_menu_and_combat.md) | Шесть групп схем Plus/God, компактная панель боя God и проверки 0.5.0 |

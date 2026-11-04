@@ -1,0 +1,27 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.1.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :compileJava
+> Task :processResources UP-TO-DATE
+> Task :classes
+> Task :jar
+> Task :plusJar
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test
+
+> Task :verifyArtifacts
+ArtifactTest passed: edition metadata, identical shared classes, content boundaries, Java 17
+
+> Task :verifyBossRound
+BossPresetStoreTest passed
+LocalizationTest passed
+GridRoutesTest passed
+BossRoundTest passed
+
+> Task :check
+> Task :assemble
+
+BUILD SUCCESSFUL in 4s
+8 actionable tasks: 6 executed, 2 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.1.0/userguide/configuration_cache_enabling.html
