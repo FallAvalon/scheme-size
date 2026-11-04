@@ -1,7 +1,7 @@
 plugins { id 'java' }
 
 group = 'org.schemetools'
-version = '0.5.0'
+version = '0.5.1'
 
 java { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 // Each edition supplies its own root icon; the original shared asset remains as artwork.

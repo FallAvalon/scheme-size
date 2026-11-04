@@ -1,0 +1,19 @@
+[I] [Core] Initialized SDL v2.32.8
+[I] [Audio] Initialized SoLoud 20260903 using MiniAudio at 44100hz / 441 samples / 2 channels
+[I] [GL] Version: OpenGL 4.6.0 / NVIDIA Corporation / NVIDIA GeForce RTX 5050/PCIe/SSE2 / 4.6.0 NVIDIA 610.62
+[I] [GL] Max texture size: 32768
+[I] [GL] Using OpenGL 3 API.
+[I] [GL] Total available VRAM: 8.3 GB
+[I] [JAVA] Version: 25.0.1
+[I] [RAM] Available: 1.1 GB
+[I] [Mindustry] Version: 160.7
+[I] Loading mod: scheme-size-god
+[I] Scheme-Size initialized edition: GOD
+[I] Total time to load: 2497ms
+[I] Fetched 272 community servers.
+[I] ORIGINAL_HEX_REFERENCE: actual unmodified O279 HexSelection binary rendered for comparison only; not included in mod
+[I] QUICK_CLICK target=st-quick-assign raw=(1014.0,360.0) stage=(1014.0,360.0) hitClass=Label hitName=null
+[I] QUICK_CLICK target=st-quick-card-0 raw=(1014.0,532.0) stage=(1014.0,532.0) hitClass=SchematicImage hitName=null
+[I] SCHEMETOOLS_QUICK_PASS: held Middle Mouse, native pick prevented, six groups, empty assignment, saved tags, real hover previews, ordinary placement, release/cancel, direction gaps, G rebind, module guard and 70/130 size bounds
+[I] SCHEMETOOLS_COMBAT_PASS: phase/clock/boss HUD, hidden navigation, pause/resume, collapse/expand, visible player commands, selected quick actions, confirmed finish/cancel
+[I] SCHEMETOOLS_WORKSPACE_PASS quick/combat edition=god scale=200 rendered=true syntheticArc=true
