@@ -11,7 +11,7 @@ import org.schemetools.Edition;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Explicit opt-in bindings; no vanilla key is captured by default. */
+/** Explicit bindings; cursor teleport defaults to the requested Alt+Mouse Back chord. */
 public final class ModKeys {
     public enum Action {
         PANEL("schemetools-panel", "st.keys.panel", "panel"),
@@ -27,6 +27,7 @@ public final class ModKeys {
         PLAYERS("schemesize-players", "st.players", "players"),
         UNITS("schemesize-unit-tools", "st.unit-tools", "players"),
         SELF("schemesize-self-tools", "st.player-tools", "players"),
+        TELEPORT("schemesize-cursor-teleport", "st.keys.teleport", "players"),
         ITEMS("schemesize-items", "st.items", "players"),
         RESTORE("schemesize-restore", "st.build.restore", "build"),
         ARENA("schemesize-arena", "st.arena.title", "arena"),
@@ -45,7 +46,7 @@ public final class ModKeys {
         for (Action action : Action.values()) {
             if (action == Action.EVENT && !edition.events) continue;
             KeyBind bind = KeyBind.all.find(value -> value.name.equals(action.id));
-            if (bind == null) bind = KeyBind.add(action.id, KeyCode.unset, "scheme-tools");
+            if (bind == null) bind = KeyBind.add(action.id, action == Action.TELEPORT ? KeyCode.mouseBack : KeyCode.unset, "scheme-tools");
             bind.load();
             Runnable run = switch (action) {
                 case PANEL -> panel::show;
@@ -61,6 +62,7 @@ public final class ModKeys {
                 case PLAYERS -> () -> panel.openPage("players");
                 case UNITS -> panel::openUnitTools;
                 case SELF -> panel::openSelfTools;
+                case TELEPORT -> panel::teleportToCursor;
                 case ITEMS -> () -> panel.openPage("items");
                 case RESTORE -> panel::restoreBuild;
                 case ARENA -> panel::openArenaTools;
@@ -73,6 +75,7 @@ public final class ModKeys {
     public void dispatch() {
         if (!Vars.state.isGame() || Core.scene.hasKeyboard() || Core.scene.hasDialog()) return;
         for (Entry entry : entries) if (Core.settings.getBool("schemesize-module-" + entry.action.module, true)
+                && (entry.action != Action.TELEPORT || !Core.scene.hasMouse())
                 && chord(entry).matches() && Core.input.keyTap(entry.binding)) { entry.run.run(); break; }
     }
     public List<Entry> entries() { return List.copyOf(entries); }
@@ -88,7 +91,7 @@ public final class ModKeys {
     }
     public static Chord chord(Entry entry) {
         String id = entry.action.id;
-        return new Chord(Core.settings.getBool(id + "-ctrl", false), Core.settings.getBool(id + "-alt", false), Core.settings.getBool(id + "-shift", false));
+        return new Chord(Core.settings.getBool(id + "-ctrl", false), Core.settings.getBool(id + "-alt", entry.action == Action.TELEPORT), Core.settings.getBool(id + "-shift", false));
     }
     public static void assign(Entry entry, KeyCode key, Chord chord) {
         if (key == null || key == KeyCode.escape) throw new IllegalArgumentException("st.error.input");

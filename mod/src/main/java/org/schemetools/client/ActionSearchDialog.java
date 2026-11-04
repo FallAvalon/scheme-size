@@ -20,7 +20,8 @@ public final class ActionSearchDialog extends ToolDialog {
     }
     public List<ModKeys.Entry> matching(String query) {
         String needle = query == null ? "" : query.strip().toLowerCase(Locale.ROOT);
-        return keys.entries().stream().filter(entry -> Core.settings.getBool("schemesize-module-" + entry.action().module, true))
+        return keys.entries().stream().filter(entry -> entry.action() != ModKeys.Action.TELEPORT)
+            .filter(entry -> Core.settings.getBool("schemesize-module-" + entry.action().module, true))
             .filter(entry -> Core.bundle.get(entry.action().label).toLowerCase(Locale.ROOT).contains(needle)).toList();
     }
     private void refresh(String query) {

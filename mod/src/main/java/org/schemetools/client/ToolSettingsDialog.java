@@ -90,15 +90,27 @@ public final class ToolSettingsDialog extends ToolDialog {
                 if (key == KeyCode.escape) return false;
                 String name = key.name().toLowerCase(java.util.Locale.ROOT);
                 if (name.contains("control") || name.startsWith("shift") || name.startsWith("alt")) return true;
+                captured(entry, dialog, key);
+                event.stop(); return true;
+            }
+            @Override public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
+                if (button != KeyCode.mouseBack && button != KeyCode.mouseForward && button != KeyCode.mouseMiddle) return false;
+                // Leave the actor attached until Arc has registered this touch focus.
                 ModKeys.Chord chord = new ModKeys.Chord(Core.input.ctrl(), Core.input.alt(), Core.input.shift());
-                var conflicts = ModKeys.conflicts(entry, key);
-                dialog.hide();
-                Runnable apply = () -> { ModKeys.assign(entry, key, chord); rebuild(); };
-                if (conflicts.isEmpty()) apply.run();
-                else Vars.ui.showConfirm(text("st.settings.title"), Core.bundle.format("st.keys.conflicts", chord.prefix() + key, String.join(", ", conflicts)), apply);
+                Core.app.post(() -> captured(entry, dialog, button, chord));
                 event.stop(); return true;
             }
         });
         dialog.show();
+    }
+    private void captured(ModKeys.Entry entry, BaseDialog dialog, KeyCode key) {
+        captured(entry, dialog, key, new ModKeys.Chord(Core.input.ctrl(), Core.input.alt(), Core.input.shift()));
+    }
+    private void captured(ModKeys.Entry entry, BaseDialog dialog, KeyCode key, ModKeys.Chord chord) {
+        var conflicts = ModKeys.conflicts(entry, key);
+        dialog.hide();
+        Runnable apply = () -> { ModKeys.assign(entry, key, chord); rebuild(); };
+        if (conflicts.isEmpty()) apply.run();
+        else Vars.ui.showConfirm(text("st.settings.title"), Core.bundle.format("st.keys.conflicts", chord.prefix() + key, String.join(", ", conflicts)), apply);
     }
 }

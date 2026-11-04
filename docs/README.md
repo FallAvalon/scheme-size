@@ -26,6 +26,7 @@
 | [`../reports/09_user_acceptance.md`](../reports/09_user_acceptance.md) | Исправленные расхождения, три категории остатка, ручная приёмка и логи |
 | [`../reports/10_acceptance_inventory.md`](../reports/10_acceptance_inventory.md) | Категория остатка каждой из 79 строк матрицы |
 | [`../reports/11_ui_navigation.md`](../reports/11_ui_navigation.md) | Карта действий, единый контекст, настоящие кадры Plus/God и проверки ввода |
+| [`../reports/19_cursor_teleport.md`](../reports/19_cursor_teleport.md) | Телепорт Alt + Mouse Back, права и проверки 0.4.1 |
 | [`../reports/18_concept_interface.md`](../reports/18_concept_interface.md) | Интерфейс 0.4.0: карточки, выровненные кнопки, выбор места и проверки 100%/200% |
 | [`../reports/17_github_publication.md`](../reports/17_github_publication.md) | Публикация 0.3.1, отдельные иконки S+/SG и текущие проверки |
 | [`../reports/16_roster_icon_publication.md`](../reports/16_roster_icon_publication.md) | Группы по командам/типам, общая иконка, проверки и готовые витрины 0.3.0 |

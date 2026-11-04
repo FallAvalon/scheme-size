@@ -1,0 +1,4 @@
+PASS plus/plus final repeat, UI100 and headless JARs identical: e79f19544e1f90c66c2623d689c019edc71bbe8adad692e05f75fdee0f1d874b
+PASS god/god final repeat, UI100 and headless JARs identical: 9d9547e23c811dd7633dad2c4cdeee2f17c0fe488354fe36dedd3039843802d9
+PASS both/plus final repeat, UI100 and headless JARs identical: e79f19544e1f90c66c2623d689c019edc71bbe8adad692e05f75fdee0f1d874b
+PASS both/god final repeat, UI100 and headless JARs identical: 9d9547e23c811dd7633dad2c4cdeee2f17c0fe488354fe36dedd3039843802d9

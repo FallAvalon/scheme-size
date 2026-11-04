@@ -1,0 +1,9 @@
+[I] SCHEMETOOLS_TELEPORT_PASS: Alt+Mouse Back world cursor, player/unit positions, zero velocity, no repeat while held, no plain click, modal/keyboard/UI/module guards, remote-client refusal, NaN/bounds rejection; synthetic Arc + SDL pointer fields
+[I] SCHEMETOOLS_CONCEPT_UI_PASS: live schematic cards, library/capture tabs, persistent dock labels, retained selection
+[I] SCHEMETOOLS_TERRAIN_CANCEL_UI_PASS: status/cancel appear immediately after confirm; cancel stops job before world mutation
+[I] SCHEMETOOLS_MORE_PANELS_PASS
+[I] SCHEMETOOLS_UNIT_DEATH_UI_PASS: team/type icons, multiple types, empty filter, rectangle intersection, individual selection, cancel, server team/player recheck, all-team death, new-spawn exclusion, stale identity/world rejection, filters preserved on tab/resize and reset on new world
+[I] SCHEMETOOLS_MENU_SETTINGS_PASS: native modal scrolling outside world
+[I] SCHEMETOOLS_ICON_PASS: native mod list loaded 256px shared icons
+[I] SCHEMETOOLS_WORKSPACE_PASS edition=plus syntheticArc=schematics,capture,paste,cancel,build,route,drag-preview,Enter,Escape,F8,back,focus-release rendered=true scale=100
+[I] SCHEMETOOLS_INLINE_HELP_PASS: help opens without changing selection, closes, visual toggle works, compact controls inside context

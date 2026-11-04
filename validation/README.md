@@ -1,3 +1,7 @@
+# Проверки телепорта 0.4.1
+
+Актуальный срез: [teleport041](teleport041/README.md), [отчёт № 19](../reports/19_cursor_teleport.md).
+
 # Проверки интерфейса 0.4.0
 
 Актуальные результаты, observer и команды: [ui040](ui040/README.md), [отчёт № 18](../reports/18_concept_interface.md). Ниже сохранены исторические проверки.

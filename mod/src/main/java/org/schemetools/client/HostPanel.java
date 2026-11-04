@@ -163,6 +163,15 @@ public final class HostPanel extends ToolDialog {
     public void openClaj() { view("openClaj", () -> new ClajDialog(claj)); }
     public void openUnitTools() { view("openUnitTools", () -> new UnitToolsDialog(actions)); }
     public void openSelfTools() { new PlayerToolsDialog(actions, Vars.player).show(); }
+    public void teleportToCursor() {
+        try {
+            actions.teleport(Vars.player, Core.input.mouseWorldX(), Core.input.mouseWorldY());
+            autopilot.stop();
+            Vars.ui.showInfoFade(text("st.teleport.done"));
+        } catch (IllegalArgumentException | IllegalStateException failure) {
+            Vars.ui.showInfoFade(text(failure.getMessage() == null ? "st.error.input" : failure.getMessage()));
+        }
+    }
     public void restoreBuild() {
         try { Vars.ui.showInfoFade(Core.bundle.format("st.build.result", buildTools.restoreDeleted())); }
         catch (RuntimeException failure) { showError(failure.getMessage() == null ? "st.error.input" : failure.getMessage()); }

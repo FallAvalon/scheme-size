@@ -1,6 +1,6 @@
 # Size Plus (S+) и Size God (SG) — тестовые сборки
 
-Публикация: [версии 0.4.0 и проверки](../reports/18_concept_interface.md).
+Публикация: [версия 0.4.1 и проверки](../reports/19_cursor_teleport.md).
 
 Русское руководство: [USER_GUIDE_RU.md](USER_GUIDE_RU.md). Последние изменения и проверки: [отчёт № 7](../reports/07_validation_and_remaining.md), внешние тесты: [план № 6](../reports/06_external_test_plan.md).
 
