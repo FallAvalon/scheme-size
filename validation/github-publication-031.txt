@@ -1,0 +1,10 @@
+Publication checked 2026-11-04 (Europe/Moscow).
+Source tag v0.3.1: dddb0ff2c289b79d7ac9e5bcfaa1fa6a596f8ee7
+Three public repositories were created; QuickDict was not changed.
+PASS FallAvalon/scheme-size-plus public, default branch main, topic mindustry-mod; root metadata/icon/provenance/screenshot equal local staged files.
+PASS https://github.com/FallAvalon/scheme-size-plus/releases/tag/v0.3.1 published regular release, one JAR + SHA256SUMS.txt; downloaded SHA-256 dc67d92620a766b985a0837cb6ba163696ec6640cc8880de113c4f90ccdd93d3 equals built/tested artifact.
+Direct JAR: https://github.com/FallAvalon/scheme-size-plus/releases/download/v0.3.1/scheme-size-plus.jar
+PASS FallAvalon/scheme-size-god public, default branch main, topic mindustry-mod; root metadata/icon/provenance/screenshot equal local staged files.
+PASS https://github.com/FallAvalon/scheme-size-god/releases/tag/v0.3.1 published regular release, one JAR + SHA256SUMS.txt; downloaded SHA-256 da9f18de60e92956d8361284a87f977d915528f956b72978e6d6079bd87f61a9 equals built/tested artifact.
+Direct JAR: https://github.com/FallAvalon/scheme-size-god/releases/download/v0.3.1/scheme-size-god.jar
+Catalog snapshot 2026-11-04 17:19:41 +03:00 : neither edition is indexed in Anuken/MindustryMods/mods.json yet. Topics are configured; in-game catalog installation is NOT verified.
