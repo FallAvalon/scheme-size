@@ -18,3 +18,12 @@
 Нажмите и отпустите колёсико → наведите на группу → нажмите миниатюру → переместите мышь и поставьте схему штатной ЛКМ. Повторите и нажмите за пределами меню: оно закроется, действие на карте не выполнится. Для смены тега нажмите значок группы.
 
 Лог Windows: `%APPDATA%\Mindustry\last_log.txt`; сбои: `%APPDATA%\Mindustry\crashes\`.
+
+## Публикация
+
+Исходный коммит `c5c55baee884f03085cfcda7a6c4672b3e63c836`, тег `v0.5.3`; витрины Plus `8d10abf` и God `06770a5`.
+
+- [Plus 0.5.3](https://github.com/FallAvalon/scheme-size-plus/releases/tag/v0.5.3): `9b3e56263106c8ee35d412310be4f007a7a42120f1afc97a40703ea7477cb36a`.
+- [God 0.5.3](https://github.com/FallAvalon/scheme-size-god/releases/tag/v0.5.3): `c9aca00f5b17b033cc8b64ef1fcb189b70fef19c1853303d5ae60ffaf6e6260a`.
+
+Штатный импорт GitHub из отдельных пустых профилей загрузил 0.5.3 с соответствующими хешами: [Plus](../validation/toggle053/github-import-plus.txt), [God](../validation/toggle053/github-import-god.txt). После установки перезапустите игру.
