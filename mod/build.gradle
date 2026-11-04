@@ -1,0 +1,72 @@
+plugins { id 'java' }
+
+group = 'org.schemetools'
+version = '0.3.1'
+
+java { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+// Each edition supplies its own root icon; the original shared asset remains as artwork.
+sourceSets.main.resources.exclude 'icon.png'
+
+// Supply the unmodified Mindustry 160.7 desktop JAR explicitly. Never package game classes.
+def gameJar = providers.gradleProperty('mindustryJar').orElse(providers.environmentVariable('MINDUSTRY_JAR'))
+dependencies {
+    compileOnly files(gameJar)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+    doFirst {
+        if (!gameJar.present || !file(gameJar.get()).isFile()) {
+            throw new GradleException('Supply -PmindustryJar=/path/to/Mindustry-160.7-desktop.jar')
+        }
+        def zip = new java.util.zip.ZipFile(file(gameJar.get()))
+        try {
+            def entry = zip.getEntry('version.properties')
+            if (entry == null) throw new GradleException('version.properties is missing in the game JAR')
+            def version = new Properties()
+            zip.getInputStream(entry).withCloseable { version.load(it) }
+            if (version.getProperty('build') != '160.7') throw new GradleException('Expected Mindustry build 160.7')
+        } finally {
+            zip.close()
+        }
+    }
+}
+
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+jar {
+    archiveFileName = 'scheme-size-god.jar'
+    from('editions/god.hjson') { rename { 'mod.hjson' } }
+    from('editions/god/icon.png')
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+}
+
+tasks.register('plusJar', Jar) {
+    dependsOn classes
+    archiveFileName = 'scheme-size-plus.jar'
+    from sourceSets.main.output
+    from('editions/plus.hjson') { rename { 'mod.hjson' } }
+    from('editions/plus/icon.png')
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+}
+assemble.dependsOn plusJar
+
+tasks.register('verifyBossRound', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.schemetools.event.BossRoundTest'
+}
+// The current tests are executable Java mains, run explicitly by verifyBossRound.
+test { failOnNoDiscoveredTests = false }
+check.dependsOn verifyBossRound
+
+tasks.register('verifyArtifacts', JavaExec) {
+    dependsOn jar, plusJar, testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.schemetools.event.ArtifactTest'
+}
+check.dependsOn verifyArtifacts

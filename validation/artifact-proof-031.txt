@@ -1,0 +1,4 @@
+PASS scheme-size-plus.jar SHA-256 dc67d92620a766b985a0837cb6ba163696ec6640cc8880de113c4f90ccdd93d3 equals UI-tested, headless-tested and clean-repeat artifacts.
+PASS scheme-size-god.jar SHA-256 da9f18de60e92956d8361284a87f977d915528f956b72978e6d6079bd87f61a9 equals UI-tested, headless-tested and clean-repeat artifacts.
+PASS plus : 141 packaged classes identical to tested 0.3.0.
+PASS god : 141 packaged classes identical to tested 0.3.0.

@@ -1,0 +1,8 @@
+name: scheme-tools
+displayName: Scheme Tools
+author: Scheme Tools contributors
+description: "Development build: match tools for Mindustry 160.7. Not feature complete."
+version: 0.1.0-dev
+minGameVersion: 160
+main: org.schemetools.SchemeToolsMod
+hidden: true

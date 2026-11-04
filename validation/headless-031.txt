@@ -1,0 +1,11 @@
+Windows headless Mindustry 160.7, isolated profiles; exact published JARs.
+Scenario: plus
+[11-04-2026 17:08:41] [I] 1 mods loaded.
+[11-04-2026 17:08:41] [I]   Size Plus (S+) 0.3.1 
+Scenario: god
+[11-04-2026 17:08:51] [I] 1 mods loaded.
+[11-04-2026 17:08:51] [I]   Size God (SG) 0.3.1 
+Scenario: both
+[11-04-2026 17:09:00] [I] 2 mods loaded.
+[11-04-2026 17:09:00] [I]   Size God (SG) 0.3.1 
+[11-04-2026 17:09:00] [I]   Size Plus (S+) 0.3.1 

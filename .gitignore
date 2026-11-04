@@ -1,0 +1,6 @@
+/work/
+/mod/build/
+/mod/.gradle/
+/mod/.gradle-user/
+.idea/
+*.log
