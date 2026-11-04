@@ -7,6 +7,7 @@
 ```powershell
 ./validation/ui040/Run.ps1 -DesktopJar C:/path/to/non-steam-desktop-160.7.jar -JdkHome C:/path/to/full-jdk -GameJava C:/path/to/runtime/bin/java.exe -UiScale 100
 ./validation/ui040/Run.ps1 -DesktopJar C:/path/to/non-steam-desktop-160.7.jar -JdkHome C:/path/to/full-jdk -GameJava C:/path/to/runtime/bin/java.exe -UiScale 200 -Only god -SmallWindow
+./validation/ui040/Run.ps1 -DesktopJar C:/path/to/non-steam-desktop-160.7.jar -JdkHome C:/path/to/full-jdk -GameJava C:/path/to/runtime/bin/java.exe -UiScale 200 -Only plus -SmallWindow
 ```
 
 Запускайте игровые UI-проходы последовательно: несколько SDL-окон могут влиять на фокус и штатную паузу. Нужна отдельная non-Steam копия build 160.7; скрипт откажется от Steam modifier. Последний аргумент small не изменяет размер: observer всегда использует 1280×720, а также проверяет портретное 800×900 при масштабе 100%.

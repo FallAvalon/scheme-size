@@ -1,0 +1,7 @@
+Publication verification 2026-11-04; source 59d7f69a27520061f257221b890c7574032b0b89; tag v0.4.0
+PASS FallAvalon/scheme-size-plus public; mindustry-mod; release v0.4.0 published; one correct JAR + SHA256SUMS.txt; storefront files equal staged source-linked files.
+PASS downloaded scheme-size-plus.jar SHA-256 b608dd173d4473804a486a51420252e9e6e177bac10479217d811fb842c87910 equals final built/tested JAR and published SHA256SUMS.txt.
+https://github.com/FallAvalon/scheme-size-plus/releases/tag/v0.4.0
+PASS FallAvalon/scheme-size-god public; mindustry-mod; release v0.4.0 published; one correct JAR + SHA256SUMS.txt; storefront files equal staged source-linked files.
+PASS downloaded scheme-size-god.jar SHA-256 7f4fa5fdbb4be8f62d72e1ef5788d8a1cfe2481c05d1eb6f8639bc3b8ad43514 equals final built/tested JAR and published SHA256SUMS.txt.
+https://github.com/FallAvalon/scheme-size-god/releases/tag/v0.4.0

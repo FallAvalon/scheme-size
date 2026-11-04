@@ -1,0 +1,3 @@
+Catalog API observation 2026-11-04; this does not prove in-game download or cache refresh.
+FallAvalon/scheme-size-plus absent from current mods.json
+FallAvalon/scheme-size-god absent from current mods.json
