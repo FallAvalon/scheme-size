@@ -2,7 +2,7 @@ name: scheme-size-god
 displayName: Size God (SG)
 author: FallAvalon
 description: "All Plus tools, host controls, arena editing, events and Boss-player mode. Vanilla guests supported for tested host actions. Desktop Mindustry 160.7. Testing release; full parity is not yet verified."
-version: 0.5.1
+version: 0.5.2
 minGameVersion: 160.7
 main: org.schemetools.SchemeSizeGodMod
 hidden: true

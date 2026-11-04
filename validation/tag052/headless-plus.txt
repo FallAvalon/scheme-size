@@ -1,0 +1,6 @@
+[11-04-2026 22:50:24] [I] 1 mods loaded.
+[11-04-2026 22:50:24] [I] Server loaded. Type 'help' for help.
+[11-04-2026 22:50:24] [I] Mods:
+[11-04-2026 22:50:24] [I]   Size Plus (S+) 0.5.2 
+[11-04-2026 22:50:24] [I] Mod directory: C:\DiskSpasenie\ShemeSize\work\headless-faffdf30e1b0444888dc05e6ce1bae73\plus\config\mods
+[11-04-2026 22:50:24] [I] Shutting down server.

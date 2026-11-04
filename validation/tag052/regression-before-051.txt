@@ -1,0 +1,24 @@
+[I] [Core] Initialized SDL v2.32.8
+[I] [Audio] Initialized SoLoud 20260903 using MiniAudio at 44100hz / 441 samples / 2 channels
+[I] [GL] Version: OpenGL 4.6.0 / NVIDIA Corporation / NVIDIA GeForce RTX 5050/PCIe/SSE2 / 4.6.0 NVIDIA 610.62
+[I] [GL] Max texture size: 32768
+[I] [GL] Using OpenGL 3 API.
+[I] [GL] Total available VRAM: 8.3 GB
+[I] [JAVA] Version: 25.0.1
+[I] [RAM] Available: 1.1 GB
+[I] [Mindustry] Version: 160.7
+[I] Loading mod: scheme-size-plus
+[I] Scheme-Size initialized edition: PLUS
+[I] Total time to load: 2376ms
+[I] Fetched 272 community servers.
+[E] SCHEMETOOLS_WORKSPACE_FAIL: java.lang.AssertionError: assignment lost when Middle released before Left
+	at probe.WorkspaceProbe.require(WorkspaceProbe.java:11)
+	at probe.WorkspaceProbe.lambda$pressAssignAndRelease$0(WorkspaceProbe.java:56)
+	at probe.WorkspaceProbe.lambda$later$0(WorkspaceProbe.java:12)
+	at arc.util.Timer$1.run(Timer.java:88)
+	at arc.util.TaskQueue.run(TaskQueue.java:17)
+	at arc.backend.sdl.SdlApplication.loop(SdlApplication.java:219)
+	at arc.backend.sdl.SdlApplication.<init>(SdlApplication.java:58)
+	at mindustry.desktop.DesktopLauncher.main(DesktopLauncher.java:53)
+	at probe.WorkspaceProbe.main(WorkspaceProbe.java:37)
+

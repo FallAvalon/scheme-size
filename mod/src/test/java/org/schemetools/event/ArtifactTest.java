@@ -20,7 +20,7 @@ public final class ArtifactTest {
                 if(iconEntry==null)throw new AssertionError("missing mod icon");
                 var icon=javax.imageio.ImageIO.read(jar.getInputStream(iconEntry));
                 if(icon==null||icon.getWidth()!=256||icon.getHeight()!=256)throw new AssertionError("expected 256px PNG icon");
-                if(!metadata.contains("version: 0.5.1")||!metadata.contains("java: true")||!metadata.contains("minGameVersion: 160.7"))throw new AssertionError("publication metadata mismatch");
+                if(!metadata.contains("version: 0.5.2")||!metadata.contains("java: true")||!metadata.contains("minGameVersion: 160.7"))throw new AssertionError("publication metadata mismatch");
                 if(!java.util.Arrays.equals(java.nio.file.Files.readAllBytes(Path.of("editions", edition == Edition.PLUS ? "plus" : "god", "icon.png")),jar.getInputStream(iconEntry).readAllBytes()))throw new AssertionError("wrong edition icon");
                 byte[] entry = jar.getInputStream(jar.getEntry(main.replace('.', '/') + ".class")).readAllBytes();
                 if (((entry[6] & 255) << 8 | entry[7] & 255) != 61) throw new AssertionError("expected Java 17 bytecode");

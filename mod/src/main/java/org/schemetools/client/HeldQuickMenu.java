@@ -30,7 +30,8 @@ final class HeldQuickMenu {
     private final ScrollPane pane=new ScrollPane(grid);
     private final List<Schematic> library=new ArrayList<>();
     private ModKeys.Entry entry;
-    private boolean shown,latched,mouseHeld,placing;
+    private boolean shown,latched,mouseHeld,placing,configurationPending;
+    private long worldGeneration;
     private KeyCode heldMouse;
     private int group=-1;
     private float anchorX,anchorY,scale;
@@ -45,7 +46,7 @@ final class HeldQuickMenu {
                 if(entry==null||entry.binding().value==null||entry.binding().value.key!=button||!allowed()||!ModKeys.chord(entry).matches()||Core.scene.hasMouse())return false;
                 mouseHeld=true;heldMouse=button;latched=true;open();return true;
             }
-            @Override public boolean touchUp(int x,int y,int pointer,KeyCode button){if(button!=heldMouse)return false;mouseHeld=false;heldMouse=null;latched=false;close();return true;}
+            @Override public boolean touchUp(int x,int y,int pointer,KeyCode button){if(button!=heldMouse)return false;mouseHeld=false;heldMouse=null;latched=false;releasePicker();return true;}
             @Override public boolean scrolled(float x,float y){
                 if(!shown)return false;var p=pointer();Element hit=Core.scene.hit(p.x,p.y,true);
                 Element focus=Core.scene.getScrollFocus();if(focus!=null&&focus.isDescendantOf(root)&&(hit==null||!hit.isDescendantOf(root)))Core.scene.setScrollFocus(null);
@@ -58,7 +59,7 @@ final class HeldQuickMenu {
     void update(ModKeys.Entry entry){
         this.entry=entry;
         boolean down=mouseHeld||(!entry.binding().isUnset()&&Core.input.keyDown(entry.binding())&&ModKeys.chord(entry).matches());
-        if(!down){latched=false;close();return;}
+        if(!down){latched=false;releasePicker();return;}
         if(!allowed()){close();return;}
         if(!latched&&Core.input.keyTap(entry.binding())&&!Core.scene.hasMouse()){latched=true;open();}
         if(shown)updateDirection();
@@ -94,7 +95,35 @@ final class HeldQuickMenu {
     }
     private Vec2 pointer(){return Core.scene.screenToStageCoordinates(new Vec2(Core.input.mouseX(),Core.input.mouseY()));}
     boolean visible(){return shown;}
-    private void reset(){latched=false;mouseHeld=false;heldMouse=null;close();}
+    private void reset(){worldGeneration++;latched=false;mouseHeld=false;heldMouse=null;close();}
+    private void releasePicker(){
+        Element assign=root.find("st-quick-assign");
+        if(shown&&group>=0&&assign!=null){
+            Vec2 p=pointer();Vec2 local=assign.stageToLocalCoordinates(p);
+            if(local.x>=0&&local.y>=0&&local.x<=assign.getWidth()&&local.y<=assign.getHeight()){
+                requestConfiguration(group);return;
+            }
+        }
+        close();
+    }
+    /** Open outside the current mouse event so releasing either button cannot cancel the modal. */
+    private void requestConfiguration(int slot){
+        if(configurationPending)return;
+        configurationPending=true;long generation=worldGeneration;close();
+        Core.app.post(()->{
+            configurationPending=false;
+            if(generation==worldGeneration&&Vars.state.isGame())configure(slot,store);
+        });
+    }
+    private void configureOnPress(Button button,int slot){
+        button.addCaptureListener(new InputListener(){
+            @Override public boolean touchDown(InputEvent event,float x,float y,int pointer,KeyCode key){
+                if(key!=KeyCode.mouseLeft)return false;
+                event.stop();requestConfiguration(slot);return true;
+            }
+        });
+        button.clicked(()->requestConfiguration(slot));
+    }
     void close(){
         if(!shown)return;
         shown=false;root.visible=false;Core.scene.unfocus(root);
@@ -118,7 +147,7 @@ final class HeldQuickMenu {
             button.setBounds(arc.math.Mathf.clamp(x,4,Core.scene.getWidth()-width-4),anchorY+dy*60*scale-14*scale,width,28*scale);
             labelX[i]=button.x;labelY[i]=button.y;
             button.addListener(new InputListener(){@Override public void enter(InputEvent event,float x,float y,int pointer,Element from){if(pointer==-1)showGroup(slot);}});
-            button.clicked(()->{close();configure(slot,store);});root.addChild(button);
+            configureOnPress(button,slot);root.addChild(button);
         }
         cards.clearChildren();cards.margin(4);cards.top();cards.name="st-quick-cards";cards.visible=false;
         pane.setScrollingDisabled(true,false);cards.add(pane).grow();root.addChild(cards);root.toFront();
@@ -142,7 +171,7 @@ final class HeldQuickMenu {
                 try{if(placing)return;placing=true;SchematicTools.use(schematic);close();}catch(Exception ex){Vars.ui.showInfoFade(Core.bundle.get(ex.getMessage(),Core.bundle.get("st.schematic.error.data")));}
             }).size(card).pad(2*scale/UiSizing.scale()).get();b.name="st-quick-card-"+count;if(++count%columns==0)grid.row();
         }
-        if(count==0){grid.button(Core.bundle.get("st.quick.assign-tag"),Styles.cleart,()->{close();configure(slot,store);}).width(pw/UiSizing.scale()-8).minHeight(40).get().name="st-quick-assign";grid.row();}
+        if(count==0){var assign=grid.button(Core.bundle.get("st.quick.assign-tag"),Styles.cleart,()->{}).width(pw/UiSizing.scale()-8).minHeight(40).get();assign.name="st-quick-assign";configureOnPress(assign,slot);grid.row();}
         int maxRows=Math.max(1,Math.min(4,(int)((Core.scene.getHeight()*.65f/scale-8)/84)));
         float height=(count==0?48:Math.min(maxRows,(count+columns-1)/columns)*84+8)*scale;
         cards.setHeight(height);
