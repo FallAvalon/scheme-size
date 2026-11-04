@@ -32,3 +32,14 @@
 ![Plus: диалог после отпускания колёсика](screenshots/ui23-plus-tags.png)
 
 ![God: диалог после отпускания колёсика](screenshots/ui23-god-tags.png)
+
+## Публикация 0.5.2
+
+Исходный коммит `93cd29192f01598c35b45f50870a901b1a223ca2`, тег `v0.5.2`. Витрины: Plus `13c6c33`, God `b57651c`. В каждом релизе один соответствующий JAR и SHA256SUMS.txt; старые релизы сохранены.
+
+- [Plus 0.5.2](https://github.com/FallAvalon/scheme-size-plus/releases/tag/v0.5.2), SHA-256 `90bcb5ae99d21840dff3429b0efdcd584959c73bdb7cc286ce4b94b71bb4bc39`.
+- [God 0.5.2](https://github.com/FallAvalon/scheme-size-god/releases/tag/v0.5.2), SHA-256 `7f2a2c8907e2fb3ea005e9f7e167c23e948ceb7de6f203a3a73dd9b0aa585ee0`.
+
+Штатный импорт из GitHub выполнен в двух пустых профилях: [Plus](../validation/tag052/github-import-plus.txt), [God](../validation/tag052/github-import-god.txt). Игра скачала версию 0.5.2, нашла main и подтвердила точный хеш проверенного артефакта.
+
+После установки/обновления требуется перезапуск игры. До обновления внешнего каталога можно импортировать `FallAvalon/scheme-size-plus` либо `FallAvalon/scheme-size-god` через штатное «Из GitHub».
