@@ -1,0 +1,1 @@
+[I] SCHEMETOOLS_IMPORT_PASS repo=FallAvalon/scheme-size-plus version=0.4.2 main=org.schemetools.SchemeSizePlusMod sha256=be563cb2eadcaa35402ea1da105c4e67404bf73fd12188fec55ffd0844ecd54d

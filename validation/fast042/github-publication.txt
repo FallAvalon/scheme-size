@@ -1,0 +1,7 @@
+2026-11-04; source tag v0.4.2 / 0f40478; actual native GitHub import into two empty isolated profiles.
+PASS FallAvalon/scheme-size-plus API language=Java, mindustry-mod; v0.4.2 has one JAR; native UI githubImportMod(repo,false,false) imported correct compiled entry point and version into empty profile.
+PASS native imported SHA-256 be563cb2eadcaa35402ea1da105c4e67404bf73fd12188fec55ffd0844ecd54d equals built / repeat / UI / real network / headless artifact.
+https://github.com/FallAvalon/scheme-size-plus/releases/tag/v0.4.2
+PASS FallAvalon/scheme-size-god API language=Java, mindustry-mod; v0.4.2 has one JAR; native UI githubImportMod(repo,false,false) imported correct compiled entry point and version into empty profile.
+PASS native imported SHA-256 537acc41d944d40328559fb9f080d9ba4046dcb3fa2e8f506711bf1dd1ed9fdf equals built / repeat / UI / real network / headless artifact.
+https://github.com/FallAvalon/scheme-size-god/releases/tag/v0.4.2

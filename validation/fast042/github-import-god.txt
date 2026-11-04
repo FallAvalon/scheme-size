@@ -1,0 +1,1 @@
+[I] SCHEMETOOLS_IMPORT_PASS repo=FallAvalon/scheme-size-god version=0.4.2 main=org.schemetools.SchemeSizeGodMod sha256=537acc41d944d40328559fb9f080d9ba4046dcb3fa2e8f506711bf1dd1ed9fdf
