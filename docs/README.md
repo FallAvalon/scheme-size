@@ -26,6 +26,7 @@
 | [`../reports/09_user_acceptance.md`](../reports/09_user_acceptance.md) | Исправленные расхождения, три категории остатка, ручная приёмка и логи |
 | [`../reports/10_acceptance_inventory.md`](../reports/10_acceptance_inventory.md) | Категория остатка каждой из 79 строк матрицы |
 | [`../reports/11_ui_navigation.md`](../reports/11_ui_navigation.md) | Карта действий, единый контекст, настоящие кадры Plus/God и проверки ввода |
+| [Отчёт 21](../reports/21_held_menu_and_combat.md) | Шесть групп схем Plus/God, компактная панель боя God и проверки 0.5.0 |
 | [`../reports/20_fast_map_controls.md`](../reports/20_fast_map_controls.md) | Колесо камеры, быстрые действия, природные стены God, клиентский телепорт и импорт GitHub 0.4.2 |
 | [`../reports/19_cursor_teleport.md`](../reports/19_cursor_teleport.md) | Телепорт Alt + Mouse Back, права и проверки 0.4.1 |
 | [`../reports/18_concept_interface.md`](../reports/18_concept_interface.md) | Интерфейс 0.4.0: карточки, выровненные кнопки, выбор места и проверки 100%/200% |

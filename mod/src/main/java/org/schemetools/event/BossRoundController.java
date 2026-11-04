@@ -29,6 +29,7 @@ import java.util.Objects;
 public final class BossRoundController {
     private final HostActions actions;
     private final BossRound round = new BossRound();
+    private long sessionId;
     private String bossName = "";
     private Team bossTeam;
     private Team hunterTeam;
@@ -147,6 +148,7 @@ public final class BossRoundController {
             previousTeams.forEach(this::restoreTeam);
             throw failure;
         }
+        sessionId++;
         bossName = boss.name;
         bossTeam = selectedBossTeam;
         hunterTeam = selectedHunterTeam;
@@ -453,6 +455,7 @@ public final class BossRoundController {
     }
 
     public BossRound.Phase phase() { return round.phase(); }
+    public long sessionId(){return sessionId;}
     public BossRound.Outcome outcome() { return round.outcome(); }
     public String bossName() { return bossName; }
     public double remaining() { return round.remaining(); }

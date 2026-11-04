@@ -187,7 +187,7 @@ public final class SchematicsDialog extends ToolDialog {
         }
     }
     @FunctionalInterface private interface IoAction { void run() throws IOException; }
-    private static final class Preview extends Element {
+    static final class Preview extends Element {
         private final Schematic schematic;
         Preview(Schematic schematic) { this.schematic = schematic; }
         @Override public void draw() {

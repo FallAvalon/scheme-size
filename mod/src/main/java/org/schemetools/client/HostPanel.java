@@ -46,6 +46,8 @@ public final class HostPanel extends ToolDialog {
     private final LocalConsole console;
     private final LocalAutopilot autopilot;
     private ModKeys keys;
+    private HeldQuickMenu quickMenu;
+    HeldQuickMenu quickMenu(){if(quickMenu==null)quickMenu=new HeldQuickMenu(schematicStore);return quickMenu;}
     private final java.util.Map<String, ToolDialog> views = new java.util.HashMap<>();
     private void view(String id, java.util.function.Supplier<ToolDialog> factory) {
         views.computeIfAbsent(id, ignored -> factory.get()).show();
@@ -139,6 +141,24 @@ public final class HostPanel extends ToolDialog {
     private static String text(String key) { return Core.bundle.get(key); }
 
     public void setKeys(ModKeys keys) { this.keys = keys; }
+    public boolean canOrganize(){return actions.isAvailable();}
+    private void sameCombat(long session){if(bossRounds.sessionId()!=session||!bossRounds.isActive())throw new IllegalStateException("st.combat.changed");}
+    public void combatPause(){long session=bossRounds.sessionId();boolean resume=bossRounds.phase()==BossRound.Phase.PAUSED;quickConfirm(text(resume?"st.boss.confirm-resume":"st.boss.confirm-pause"),()->perform(()->{sameCombat(session);if(resume)bossRounds.resume();else bossRounds.pause();}));}
+    public void combatFinish(){long session=bossRounds.sessionId();confirm(text("st.boss.confirm-finish"),()->perform(()->{sameCombat(session);bossRounds.finish(BossRound.Outcome.ABORTED);}));}
+    public void combatMessage(){
+        String message=Core.settings.getString("schemesize-combat-message","");
+        if(message.isBlank())Vars.ui.showTextInput(text("st.announce"),"",200,"",value->{Core.settings.put("schemesize-combat-message",value);perform(()->actions.announce(value));});
+        else perform(()->actions.announce(message));
+    }
+    public String combatSpawnLabel(){UnitType type=selectedUnit();return (type==null?text("st.units"):type.localizedName)+" ×"+spawnCount;}
+    public void combatSpawnSettings(){unitsCreate=true;openPage("units");}
+    public void combatSpawn(){attempt(()->{
+        if(!actions.isAvailable())throw new IllegalStateException("st.error.authority");
+        Team team=selectedTeam();UnitType selected=selectedUnit();int count=parseInt(spawnCount,1,actions.maxSpawnBatch(),"st.error.input");
+        new AreaSelectionDialog(1,point->quickConfirm(Core.bundle.format("st.workspace.spawn-confirm",selected.localizedName,count,point.x1(),point.y1()),()->perform(()->{
+            SpawnResult result=actions.spawn(team,selected,point.x1()*Vars.tilesize,point.y1()*Vars.tilesize,count);return Core.bundle.format("st.spawn-result",result.spawned());
+        })),selected,team,count).show();
+    });}
     public void refreshLayout() {
         if (("players".equals(page) || "arena".equals(page)) && !Core.settings.getBool("schemesize-module-" + page, true)) page = "overview";
         if (isShown()) rebuild();
@@ -468,6 +488,7 @@ public final class HostPanel extends ToolDialog {
 
     private static String displayName(Player player){String name=Strings.stripColors(player.name);return name.isBlank()?Core.bundle.get("st.player")+" #"+player.id:name;}
     private void players(Table root){
+        if(edition.events&&bossRounds.isActive()){combatPlayers(root);return;}
         ToolUi.action(root,text("st.workspace.player-point"),"st.help.player-map",()->new AreaSelectionDialog(1,point->{
             Player nearest=null;float distance=Float.MAX_VALUE;
             for(Player candidate:Groups.player.copy()){float dst=candidate.dst(point.x1()*Vars.tilesize,point.y1()*Vars.tilesize);if(dst<distance){distance=dst;nearest=candidate;}}
@@ -479,6 +500,7 @@ public final class HostPanel extends ToolDialog {
         playerDetailsTable=new Table();playerDetailsTable.defaults().width(ToolUi.width()).padBottom(6).left();root.add(playerDetailsTable).row();refreshPlayerWidgets();
     }
     private void refreshPlayerWidgets(){
+        if("players".equals(page)&&edition.events&&bossRounds.isActive()){rebuild();return;}
         if(playerListTable==null||playerDetailsTable==null)return;
         var players=matchingPlayers();
         if(selectedPlayer()==null||players.stream().noneMatch(p->Objects.equals(PlayerKey.of(p),selectedPlayerUuid)))selectedPlayerUuid=players.isEmpty()?null:PlayerKey.of(players.get(0));
@@ -495,7 +517,15 @@ public final class HostPanel extends ToolDialog {
             row.add(displayName(selected)).wrap().width(ToolUi.width()-44).left();
             row.button("?",()->ToolUi.helpText(displayName(selected),Core.bundle.format("st.player-detail",displayName(selected),selected.team().localized(),selected.unit()==null?text("st.player-no-unit"):selected.unit().type().localizedName)+"\n"+PeerInfo.describe(selected))).size(40,40).padLeft(4).tooltip(text("st.help.read"));
         }).row();
-        ToolUi.action(playerDetailsTable,text("st.player-tools"),"st.help.player-actions",()->{Player current=selectedPlayer();if(current!=null)new PlayerToolsDialog(actions,current).show();});
+        String chosenUuid=selectedPlayerUuid;
+        playerDetailsTable.table(row->{
+            var watch=row.button(text("st.combat.watch"),()->attempt(()->{
+                Player current=findPlayer(chosenUuid);if(current==null||current.dead()||!actions.isAvailable()&&current.unit().inFogTo(Vars.player.team()))throw new IllegalArgumentException("st.no-player");
+                Vars.control.input.spectate(current.unit());
+            })).width((ToolUi.width()-4)/2).height(38).get();watch.name="st-player-watch-inline";
+            var bring=row.button(text("st.combat.bring"),()->quickConfirm(text("st.player-to-me"),()->perform(()->actions.teleport(findPlayer(chosenUuid),Vars.player.x,Vars.player.y)))).width((ToolUi.width()-4)/2).height(38).padLeft(4).disabled(!actions.isAvailable()).get();bring.name="st-player-bring-inline";
+        }).row();
+        ToolUi.action(playerDetailsTable,text("st.combat.more-player"),"st.help.player-actions",()->{Player current=selectedPlayer();if(current!=null)new PlayerToolsDialog(actions,current).show();});
         ToolUi.action(playerDetailsTable,text("st.team")+": "+selected.team().localized(),"st.help.player-team",()->{
             BaseDialog picker=new BaseDialog(text("st.team"));picker.name="st-modal";picker.addCloseButton();
             for(Team destination:Team.baseTeams)if(HostActions.isValidTeam(destination))picker.cont.button(destination.localized(),()->{
@@ -507,6 +537,28 @@ public final class HostPanel extends ToolDialog {
     }
 
     private boolean destinationUnavailable(Team team) { return team == null || selectedPlayer() == null; }
+
+    /** In a fight the selector stays one row; the selected player's actions stay directly below it. */
+    private void combatPlayers(Table root){
+        playerListTable=null;playerDetailsTable=null;
+        if(selectedPlayer()==null){var found=matchingPlayers();selectedPlayerUuid=found.isEmpty()?null:PlayerKey.of(found.get(0));}
+        Player selected=selectedPlayer();if(selected==null){root.add(text("st.no-player")).row();return;}
+        String uuid=selectedPlayerUuid;
+        root.button(displayName(selected)+" ▾",()->{
+            BaseDialog picker=new BaseDialog(text("st.players"));picker.name="st-modal";picker.addCloseButton();
+            Table list=new Table();Runnable refill=()->{list.clearChildren();for(Player p:matchingPlayers()){String key=PlayerKey.of(p);list.button(displayName(p),()->{selectedPlayerUuid=key;picker.hide();rebuild();}).width(240).height(38).row();}};
+            picker.cont.field(playerSearch,value->{playerSearch=limit(value,80);refill.run();}).width(260).row();picker.cont.pane(list).width(260).maxHeight(UiSizing.height()*.45f).scrollX(false);refill.run();picker.show();
+        }).minHeight(38).get().name="st-combat-player-selector";
+        root.row();
+        root.table(row->{
+            row.button(text("st.combat.watch"),()->attempt(()->{Player p=findPlayer(uuid);if(p==null||p.dead())throw new IllegalArgumentException("st.no-player");Vars.control.input.spectate(p.unit());})).width((ToolUi.width()-4)/2).height(36).get().name="st-player-watch-inline";
+            row.button(text("st.combat.bring"),()->quickConfirm(text("st.player-to-me"),()->perform(()->actions.teleport(findPlayer(uuid),Vars.player.x,Vars.player.y)))).width((ToolUi.width()-4)/2).height(36).padLeft(4).disabled(!actions.isAvailable()).get().name="st-player-bring-inline";
+        }).row();
+        root.table(row->{for(Team team:Team.baseTeams)if(HostActions.isValidTeam(team)){
+            var style=new arc.scene.ui.ImageButton.ImageButtonStyle(mindustry.ui.Styles.clearTogglei);style.imageUpColor=team.color;style.imageCheckedColor=team.color;style.imageDownColor=team.color;var button=row.button(mindustry.gen.Tex.whiteui,style,()->quickConfirm(text("st.team")+": "+team.localized(),()->perform(()->actions.team(findPlayer(uuid),team)))).size(30).pad(2).tooltip(team.localized()).get();button.getImageCell().size(16);button.setChecked(selected.team()==team);button.setDisabled(!actions.isAvailable());button.name="st-combat-player-team-"+team.id;
+        }}).row();
+        ToolUi.action(root,text("st.combat.more-player"),"st.help.player-actions",()->{Player current=findPlayer(uuid);if(current!=null)new PlayerToolsDialog(actions,current).show();});
+    }
 
     private void compactTeam(Table root){
         int columns=ToolUi.width()>=320?2:1;float width=(ToolUi.width()-4*(columns-1))/columns;

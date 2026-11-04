@@ -1,0 +1,25 @@
+[I] [Core] Initialized SDL v2.32.8
+[I] [Audio] Initialized SoLoud 20260903 using MiniAudio at 44100hz / 441 samples / 2 channels
+[I] [GL] Version: OpenGL 4.6.0 / NVIDIA Corporation / NVIDIA GeForce RTX 5050/PCIe/SSE2 / 4.6.0 NVIDIA 610.62
+[I] [GL] Max texture size: 32768
+[I] [GL] Using OpenGL 3 API.
+[I] [GL] Total available VRAM: 8.3 GB
+[I] [JAVA] Version: 25.0.1
+[I] [RAM] Available: 1.1 GB
+[I] [Mindustry] Version: 160.7
+[I] Loading mod: scheme-size-god
+[I] Scheme-Size initialized edition: GOD
+[I] Total time to load: 2390ms
+[I] Fetched 272 community servers.
+[I] SCHEMETOOLS_TELEPORT_PASS: Alt+Mouse Back world cursor, player/unit positions, zero velocity, no repeat while held, no plain click, modal/keyboard/UI/module guards, remote self snapshot movement, NaN/bounds rejection; synthetic Arc + SDL pointer fields
+[I] SCHEMETOOLS_FAST_UI_PASS: native map zoom in/out with panel scroll focus, zoom outside real content picker, routine confirmations default off; God natural wall selection/apply/undo/persistence and immediate filtered unit death with protected player
+[I] SCHEMETOOLS_CONCEPT_UI_PASS: live schematic cards, tabs, dock labels, unit picker, persistent count10, mouse pointer preview, right-click cancellation without mutation, map click confirmation and native spawn10
+[I] SCHEMETOOLS_TERRAIN_CANCEL_UI_PASS: status/cancel appear immediately after confirm; cancel stops job before world mutation
+[I] SCHEMETOOLS_SEGMENTS_NOT_AVAILABLE: installed 160.7 content has no segmentUnits>1; native API branch remains unverified
+[I] SCHEMETOOLS_GOD_CONTROLS_PASS: configured sorter, save/load and proximity preserved, banned dagger15 at cap0 survive, copper+100000 survives proximity, overflow atomic, banned router on deepwater and undo, graphite icon selection
+[I] SCHEMETOOLS_GOD_REPLACE_PASS: occupied multiblock replacement and terrain erase; undo restored vault/inventory/health, sorter config/team/rotation
+[I] SCHEMETOOLS_UNIT_DEATH_UI_PASS: team/type icons, multiple types, empty filter, rectangle intersection, individual selection, cancel, server team/player recheck, all-team death, new-spawn exclusion, stale identity/world rejection, filters preserved on tab/resize and reset on new world
+[I] SCHEMETOOLS_MENU_SETTINGS_PASS: native modal scrolling outside world
+[I] SCHEMETOOLS_ICON_PASS: native mod list loaded 256px shared icons
+[I] SCHEMETOOLS_WORKSPACE_PASS edition=god syntheticArc=schematics,capture,paste,cancel,build,route,drag-preview,Enter,Escape,F8,back,focus-release,map-player,map-core,resources+37,unit-spawn2,event-start-pause-finish rendered=true scale=100
+[I] SCHEMETOOLS_INLINE_HELP_PASS: help opens without changing selection, closes, visual toggle works, compact controls inside context

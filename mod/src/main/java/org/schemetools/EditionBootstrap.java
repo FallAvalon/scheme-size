@@ -54,7 +54,8 @@ public final class EditionBootstrap {
             HostPanel panel = new HostPanel(actions, bossRounds, presets, edition, routes, schematics, console, autopilot);
             ModKeys keys = new ModKeys(edition, panel, routes);
             panel.setKeys(keys);
-            new org.schemetools.client.ToolWorkspace(panel, edition, routes, keys);
+            var workspace=new org.schemetools.client.ToolWorkspace(panel, edition, routes, keys);
+            if(edition.events)new org.schemetools.client.CombatDock(panel,bossRounds,workspace);
             Vars.ui.settings.addCategory(Core.bundle.get(edition.titleKey), table -> {
                 table.checkPref("schemetools-hud", true);
                 table.button(Core.bundle.get("st.settings.title"), () -> new ToolSettingsDialog(keys, routes, panel).show()).row();

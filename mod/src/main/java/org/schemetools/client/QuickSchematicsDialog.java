@@ -19,6 +19,9 @@ public final class QuickSchematicsDialog extends ToolDialog {
     private String tag = Core.settings.getString("schemesize-quick-tag", "");
     private String search = "";
     private arc.scene.ui.layout.Table list;
+    private boolean advanced;
+    @Override public boolean compactContent(){return true;}
+    @Override public void refreshWidth(){rebuild();}
     public QuickSchematicsDialog(SchematicStore store) {
         super(Core.bundle.get("st.quick-schematics")); this.store = store;
         addCloseButton(); shown(this::rebuild);
@@ -33,14 +36,15 @@ public final class QuickSchematicsDialog extends ToolDialog {
         for (var schematic : Vars.schematics.all()) library.add(schematic);
         try { for (var entry : store.list().entries()) library.add(entry.schematic()); }
         catch (IOException failure) { Vars.ui.showInfoFade(Core.bundle.get("st.schematic.error.file")); }
-        cont.clear();
-        cont.add(Core.bundle.get("st.quick-schematics-help")).wrap().width(UiSizing.width(560)).row();
-        cont.table(row -> {
-            row.add(Core.bundle.get("st.schematic.tag"));
-            row.field(tag, value -> { tag = value; Core.settings.put("schemesize-quick-tag", value); refill(); }).width(UiSizing.width(180)).maxTextLength(64);
-            row.add(Core.bundle.get("st.search")); row.field(search, value -> { search = value; refill(); }).width(UiSizing.width(180)).maxTextLength(80);
-        }).row();
-        list = new arc.scene.ui.layout.Table(); cont.pane(list).width(UiSizing.width(600)).maxHeight(UiSizing.toolHeight(0.6f)).row(); refill();
+        var root=ToolUi.content(this);
+        root.add(Core.bundle.get("st.quick.hold-hint")).wrap().row();
+        root.table(t->{for(int i=0;i<6;i++){final int slot=i;String value=HeldQuickMenu.tag(i);var b=t.button((i+1)+": "+(value.isBlank()?"+":value),()->HeldQuickMenu.configure(slot,store)).width((ToolUi.width()-4)/2).minHeight(40).pad(2).get();b.getLabel().setEllipsis(true);if(i%2==1)t.row();}}).row();
+        ToolUi.valueField(root,Core.bundle.get("st.quick.size"),""+HeldQuickMenu.sizePercent(),v->{try{int size=Integer.parseInt(v);if(size>=70&&size<=130)Core.settings.put("schemesize-quick-size",size);}catch(NumberFormatException ignored){}});
+        ToolUi.action(root,Core.bundle.get("st.quick.library"),"st.quick-schematics-help",()->{advanced=!advanced;rebuild();});
+        if(!advanced)return;
+        ToolUi.field(root,Core.bundle.get("st.schematic.tag"),tag,value->{tag=value;Core.settings.put("schemesize-quick-tag",value);refill();});
+        ToolUi.field(root,Core.bundle.get("st.search"),search,value->{search=value;refill();});
+        list = new arc.scene.ui.layout.Table(); root.pane(list).width(ToolUi.width()).maxHeight(UiSizing.toolHeight(0.5f)).scrollX(false).row(); refill();
     }
     private void refill() {
         if (list == null) return;
@@ -50,7 +54,7 @@ public final class QuickSchematicsDialog extends ToolDialog {
             list.button(schematic.tags.get("name", Core.bundle.get("st.schematic.unnamed")) + "  " + schematic.width + "×" + schematic.height, () -> {
                 try { SchematicTools.use(schematic); hide(); }
                 catch (IOException failure) { Vars.ui.showErrorMessage(Core.bundle.get(failure.getMessage(), Core.bundle.get("st.schematic.error.data"))); }
-            }).width(UiSizing.width(570)).height(46).get().name = "scheme-size-quick-entry";
+            }).width(ToolUi.width()-24).minHeight(46).get().name = "scheme-size-quick-entry";
             list.row();
         }
         if (count == 0) list.add(Core.bundle.get("st.schematic.no-matches")).row();

@@ -24,6 +24,8 @@ public final class ToolWorkspace {
     private ToolDialog current;
     private boolean expanded = Core.settings.getBool("schemesize-dock-labels",true);
     private boolean suspended;
+    private boolean battleHidden;
+    public void battleNavigation(boolean value){if(battleHidden!=value){battleHidden=value;layout();}}
     private String selectedTool;
     private final java.util.ArrayDeque<ToolDialog> history = new java.util.ArrayDeque<>();
     private boolean primary;
@@ -72,7 +74,7 @@ public final class ToolWorkspace {
                 event.stop(); InputDismissal.run(ToolWorkspace.this::close); return true;
             }
         });
-        root.update(() -> {
+        arc.Events.run(mindustry.game.EventType.Trigger.update,() -> {
             float w = Core.scene.getWidth(), h = Core.scene.getHeight();
             int left=Core.settings.getInt("schemesize-hud-left",8),top=Core.settings.getInt("schemesize-hud-top",96),mask=0;
             for(int i=0;i<modules.size();i++)if(enabled(modules.get(i)))mask|=1<<i;
@@ -92,7 +94,7 @@ public final class ToolWorkspace {
     /** Route wheel by the pointer, not the pane that last retained scroll focus. */
     public boolean routeScroll(float amountX,float amountY){
         if(!Vars.state.isGame())return false;
-        var p=Core.scene.screenToStageCoordinates(new arc.math.geom.Vec2(Core.input.mouseX(),Core.graphics.getHeight()-Core.input.mouseY()));
+        var p=Core.scene.screenToStageCoordinates(new arc.math.geom.Vec2(Core.input.mouseX(),Core.input.mouseY()));
         Element hit=Core.scene.hit(p.x,p.y,true);var dialog=Core.scene.getDialog();
         if(dialog!=null){
             boolean selection=dialog instanceof AreaSelectionDialog && hit!=null && "st-map-selection-canvas".equals(hit.name);
@@ -145,7 +147,7 @@ public final class ToolWorkspace {
     }
     private boolean enabled(String module){return module==null || Core.settings.getBool("schemesize-module-"+module,true);}
     static float contentWidth() { return Math.max(240, Math.min(440, Core.scene.getWidth() / UiSizing.scale() - 360)); }
-    private static float topInset(){return Math.min(Core.settings.getInt("schemesize-hud-top",96),UiSizing.height()*.2f);}
+    private static float topInset(){boolean battle=active!=null&&active.battleHidden;float limit=battle?Math.max(0,UiSizing.height()-180):UiSizing.height()*.2f;return Math.min(Core.settings.getInt("schemesize-hud-top",96),limit)+(battle&&active.current!=null?78:0);}
     static float contextHeight(){return Math.max(120,UiSizing.height()-topInset()-24);}
     public ToolDialog current() { return current; }
     public void open(ToolDialog next) {
@@ -192,7 +194,7 @@ public final class ToolWorkspace {
         }
         root.marginTop(topInset())
             .marginLeft(Math.max(0,Math.min(Core.settings.getInt("schemesize-hud-left",8),Core.scene.getWidth()/UiSizing.scale()-320-contentWidth()-54)));
-        root.pane(rail).width(railWidth()).maxHeight(contextHeight()).top().scrollX(false);
+        if(!battleHidden)root.pane(rail).width(railWidth()).maxHeight(contextHeight()).top().scrollX(false);
         if (current != null) root.add(context).width(contentWidth()).maxHeight(contextHeight()).padLeft(4).top();
     }
 }

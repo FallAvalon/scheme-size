@@ -31,6 +31,7 @@ public final class ToolSettingsDialog extends ToolDialog {
         root.table(t->{int i=0;for(String id:new String[]{"interface","modules","keys","other"}){var button=t.button(text("st.settings.tab."+id),()->{section=id;rebuild();}).width((ToolUi.width()-8)/2).minHeight(40).get();button.getLabel().setWrap(true);if(++i%2==0)t.row();}}).row();
         switch(section){
             case "interface"->{
+                if(panel.organizerEdition())preference(root,"st.combat.hud","schemesize-combat-hud",true);
                 preference(root,"st.settings.confirm-actions","schemesize-confirm-actions",false);
                 preference(root,"setting.schemetools-hud.name","schemetools-hud",true);
                 preference(root,"st.settings.welcome","schemesize-welcome",true);

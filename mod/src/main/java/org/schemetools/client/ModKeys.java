@@ -41,12 +41,14 @@ public final class ModKeys {
         public String prefix() { return (ctrl ? "Ctrl+" : "") + (alt ? "Alt+" : "") + (shift ? "Shift+" : ""); }
     }
     private final List<Entry> entries = new ArrayList<>();
+    private final HeldQuickMenu quick;
 
     public ModKeys(Edition edition, HostPanel panel, RouteOverlay routes) {
+        quick=panel.quickMenu();
         for (Action action : Action.values()) {
             if (action == Action.EVENT && !edition.events) continue;
             KeyBind bind = KeyBind.all.find(value -> value.name.equals(action.id));
-            if (bind == null) bind = KeyBind.add(action.id, action == Action.TELEPORT ? KeyCode.mouseBack : KeyCode.unset, "scheme-tools");
+            if (bind == null) bind = KeyBind.add(action.id, action == Action.TELEPORT ? KeyCode.mouseBack : action == Action.QUICK_SCHEMATICS ? KeyCode.mouseMiddle : KeyCode.unset, "scheme-tools");
             bind.load();
             Runnable run = switch (action) {
                 case PANEL -> panel::show;
@@ -71,10 +73,12 @@ public final class ModKeys {
             entries.add(new Entry(action, bind, run));
         }
         Events.run(Trigger.update, this::dispatch);
+        quick.update(entries.stream().filter(e->e.action==Action.QUICK_SCHEMATICS).findFirst().orElseThrow());
     }
     public void dispatch() {
+        quick.update(entries.stream().filter(e->e.action==Action.QUICK_SCHEMATICS).findFirst().orElseThrow());
         if (!Vars.state.isGame() || Core.scene.hasKeyboard() || Core.scene.hasDialog()) return;
-        for (Entry entry : entries) if (Core.settings.getBool("schemesize-module-" + entry.action.module, true)
+        for (Entry entry : entries) if (entry.action!=Action.QUICK_SCHEMATICS && Core.settings.getBool("schemesize-module-" + entry.action.module, true)
                 && (entry.action != Action.TELEPORT || !Core.scene.hasMouse())
                 && chord(entry).matches() && Core.input.keyTap(entry.binding)) { entry.run.run(); break; }
     }
